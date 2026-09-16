@@ -107,15 +107,21 @@ export function findPage(query: string): string {
 }
 
 export function moviePage(movie: MovieRecord): string {
+  const genreLinks = movie.genres
+    .map((genre) => `<a href="/search/title/?genres=${encodeURIComponent(genre)}">${genre}</a>`)
+    .join(' ');
+
   return layout(
     `${movie.title} (${movie.year}) - IMDb`,
     `<article>
        <h1 data-testid="hero__pageTitle"><span>${movie.title}</span></h1>
-       <ul>
+       <ul aria-label="Title metadata">
          <li><a href="/title/${movie.id}/releaseinfo/">${movie.year}</a></li>
-         <li>PG-13</li>
+         <li>${movie.certificate}</li>
+         <li data-testid="title-runtime">${movie.runtime}</li>
        </ul>
-       <div>
+       <div data-testid="genres">${genreLinks}</div>
+       <div data-testid="hero-rating-bar__aggregate-rating">
          <span data-testid="hero-rating-bar__aggregate-rating__score">${movie.rating}</span>
          <span>/10</span>
        </div>

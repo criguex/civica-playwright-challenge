@@ -6,21 +6,19 @@ import { logger } from '../utils/logger.js';
 /**
  * IMDb "Top 250 Movies" chart page.
  *
- * Ranked rows are labelled "1. <title>", "2. <title>", … so the first movie is
- * addressed by its accessible name rather than a positional CSS selector,
- * keeping the locator resilient to markup changes.
+ * Ranked rows are labelled "1. <title>", "2. <title>", … so movies are
+ * addressed by their accessible name rather than a positional CSS selector,
+ * keeping the locators resilient to markup changes.
  */
 export class Top250Page extends BasePage {
   private readonly heading: Locator;
-  private readonly firstRankLink: Locator;
+  private readonly rankedLinks: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: /top 250 movies/i });
-    this.firstRankLink = this.page
-      .getByRole('main')
-      .getByRole('link', { name: /^1\.\s/ })
-      .first();
+    // Every ranked entry ("1. …", "2. …", …) inside the main chart column.
+    this.rankedLinks = this.page.getByRole('main').getByRole('link', { name: /^\d+\.\s/ });
   }
 
   /** Locator for the chart page heading. */
@@ -28,17 +26,37 @@ export class Top250Page extends BasePage {
     return this.heading;
   }
 
+  /** Locator matching every ranked movie link in the chart. */
+  get rankedMovies(): Locator {
+    return this.rankedLinks;
+  }
+
   /** Locator for the first-ranked movie link. */
   get firstMovie(): Locator {
-    return this.firstRankLink;
+    return this.movieAtRank(1);
+  }
+
+  /** Locator for the movie at a given 1-based rank. */
+  movieAtRank(rank: number): Locator {
+    return this.page.getByRole('main').getByRole('link', { name: new RegExp(`^${rank}\\.\\s`) });
+  }
+
+  /** Number of ranked movies currently rendered. */
+  async count(): Promise<number> {
+    return this.rankedLinks.count();
+  }
+
+  /** The visible text of every ranked entry, in DOM order. */
+  async rankedTitles(): Promise<string[]> {
+    return this.rankedLinks.allInnerTexts();
   }
 
   /**
-   * Opens the first-ranked movie and returns its details page.
+   * Opens the movie at the given rank (default: #1) and returns its details page.
    */
-  async openFirstMovie(): Promise<MovieDetailsPage> {
-    logger.step('Opening the #1 movie in the Top 250 chart');
-    await this.firstRankLink.click();
+  async openMovieAtRank(rank = 1): Promise<MovieDetailsPage> {
+    logger.step(`Opening movie #${rank} in the Top 250 chart`);
+    await this.movieAtRank(rank).click();
     return new MovieDetailsPage(this.page);
   }
 }

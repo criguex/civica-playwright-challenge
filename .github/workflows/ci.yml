@@ -9,9 +9,9 @@ on:
 
 jobs:
   test:
-    name: Typecheck + Mock suite
+    name: Lint + Typecheck + Mock & Mutation suites
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -29,11 +29,17 @@ jobs:
       - name: Install Playwright browser (Chromium)
         run: npx playwright install --with-deps chromium
 
+      - name: Lint
+        run: npm run lint
+
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Run mock test suite
+      - name: Run mock suite (includes accessibility)
         run: npm run test:mock
+
+      - name: Run mutation suite
+        run: npm run test:mutation
 
       - name: Upload HTML report
         if: ${{ !cancelled() }}
@@ -42,3 +48,12 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+      - name: Upload mutation insights ledger
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-insights
+          path: test-results/mutation-insights.json
+          retention-days: 14
+          if-no-files-found: ignore

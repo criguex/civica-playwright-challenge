@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * Tiny, dependency-free logger.
  *
