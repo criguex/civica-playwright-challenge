@@ -11,14 +11,38 @@ import { logger } from '../utils/logger.js';
  * Every question in a batch is evaluated in parallel against the same `state`,
  * so asking ten things costs roughly the same wall-clock time as asking one.
  *
- * Without `TYPESAFE_API_KEY` the client falls back to a clearly-labelled
- * lexical stub (see `offlineAnswer`) so the suite stays runnable — and the
- * repo stays clonable — without an account. The stub is deliberately dumb; it
- * exists to exercise the wiring, never to certify anything.
+ * Two transports reach the same model, so a capacity freeze on one vendor does
+ * not block the suite:
+ *  - `TYPESAFE_API_KEY` → api.typesafe.ai directly.
+ *  - `AI_GATEWAY_API_KEY` → Vercel AI Gateway, which exposes a
+ *    TypeSafe-compatible endpoint at the same price. Useful when TypeSafe has
+ *    paused its own signups.
+ *
+ * With neither, the client falls back to a clearly-labelled lexical stub (see
+ * `offlineAnswer`) so the suite stays runnable — and the repo stays clonable —
+ * without an account. The stub is deliberately dumb; it exists to exercise the
+ * wiring, never to certify anything.
  */
 
-const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
+const DIRECT_ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
+const GATEWAY_ENDPOINT = 'https://ai-gateway.vercel.sh/typesafe/v1/systemone';
 const MODEL = 'jev-latest';
+
+interface Transport {
+  url: string;
+  key: string;
+  via: string;
+}
+
+function transport(): Transport | null {
+  if (process.env.TYPESAFE_API_KEY) {
+    return { url: DIRECT_ENDPOINT, key: process.env.TYPESAFE_API_KEY, via: 'typesafe' };
+  }
+  if (process.env.AI_GATEWAY_API_KEY) {
+    return { url: GATEWAY_ENDPOINT, key: process.env.AI_GATEWAY_API_KEY, via: 'vercel-gateway' };
+  }
+  return null;
+}
 
 export type JevState = string | Record<string, unknown> | unknown[];
 
@@ -70,7 +94,7 @@ export interface JevResult<Q extends Record<string, JevQuestion>> {
 }
 
 export function isLive(): boolean {
-  return Boolean(process.env.TYPESAFE_API_KEY);
+  return transport() !== null;
 }
 
 let warned = false;
@@ -81,8 +105,8 @@ function warnOnce(): void {
   }
   warned = true;
   logger.warn(
-    'TYPESAFE_API_KEY not set — Jev answers are LEXICAL STUBS, not real decisions. ' +
-      'Get a key at https://console.typesafe.ai to run against the model.',
+    'No Jev key — answers are LEXICAL STUBS, not real decisions. Set TYPESAFE_API_KEY ' +
+      '(console.typesafe.ai) or AI_GATEWAY_API_KEY (vercel.com/ai-gateway, same model and price).',
   );
 }
 
@@ -164,8 +188,9 @@ export async function ask<Q extends Record<string, JevQuestion>>(
   questions: Q,
 ): Promise<JevResult<Q>> {
   const flat = flatten(state);
+  const route = transport();
 
-  if (!isLive()) {
+  if (!route) {
     warnOnce();
     return {
       answers: Object.fromEntries(
@@ -177,11 +202,11 @@ export async function ask<Q extends Record<string, JevQuestion>>(
   }
 
   try {
-    const response = await fetch(ENDPOINT, {
+    const response = await fetch(route.url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${process.env.TYPESAFE_API_KEY}`,
+        authorization: `Bearer ${route.key}`,
       },
       body: JSON.stringify({ model: MODEL, state, questions }),
     });
@@ -197,14 +222,15 @@ export async function ask<Q extends Record<string, JevQuestion>>(
 
     const answers = Object.fromEntries(
       Object.entries(payload.answers).map(([key, raw]) => {
-        if (raw.type === 'noul') {
-          return [key, { type: 'noul', probability: raw.noul as number } satisfies NoulAnswer];
+        if (raw.type === 'noul' || raw.type === 'boolean') {
+          const probability = (raw.noul ?? raw.probability) as number;
+          return [key, { type: 'noul', probability } satisfies NoulAnswer];
         }
         return [key, raw as unknown as JevAnswer];
       }),
     ) as JevResult<Q>['answers'];
 
-    return { answers, offline: false, model: payload.model };
+    return { answers, offline: false, model: `${payload.model} via ${route.via}` };
   } catch (error) {
     logger.warn(`Jev unreachable (${String(error)}) — falling back to offline stub.`);
     return {

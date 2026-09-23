@@ -56,7 +56,13 @@ Two constraints are non-negotiable:
   rationale. Each helper attaches the exact state it judged plus the full
   probability distribution to the Playwright report. A verdict nobody can audit
   is not evidence, and cannot support a certification.
-- **No key means no assertion.** Without `TYPESAFE_API_KEY` the helpers record
+- **Two transports, one model.** Jev is reachable directly
+  (`TYPESAFE_API_KEY`) or through Vercel AI Gateway (`AI_GATEWAY_API_KEY`),
+  which exposes a TypeSafe-compatible endpoint at the same price. TypeSafe
+  paused its own signups on 2026-09-22 after demand outran capacity; the
+  gateway route kept the work unblocked. A single-vendor dependency on a
+  two-week-old company is a risk worth designing around.
+- **No key means no assertion.** Without either key the helpers record
   the evidence, annotate the test and return *without asserting*. The offline
   stub is lexical; asserting on it would manufacture a green that means
   nothing. This mirrors how the `e2e` project skips honestly behind the
