@@ -453,6 +453,20 @@ IMDb's bot defenses.
 - **[docs/MUTATION-TESTING.md](docs/MUTATION-TESTING.md)** — extend the learning coverage engine.
 - **[docs/adr/](docs/adr)** — the decisions behind the design.
 
+### 🧠 Semantic oracle (Jev)
+
+Assert *meaning* instead of strings, and triage every failure before a human
+reads it. Runs against a labelled offline stub when no API key is present, so a
+fresh clone stays green.
+
+```bash
+npm run test:jev
+```
+
+- **[docs/jev-pipeline.html](docs/jev-pipeline.html)** — interactive walkthrough: follow a feature through the pipeline, including the loop it takes when something fails.
+- **[docs/jev-explicado.es.md](docs/jev-explicado.es.md)** — explained from zero, in Spanish.
+- **[docs/adr/0006-jev-semantic-oracle.md](docs/adr/0006-jev-semantic-oracle.md)** — the decision, and its trade-offs.
+
 ---
 
 ## 🛠️ Tech stack

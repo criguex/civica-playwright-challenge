@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo viaja una feature por el pipeline · Jev × Playwright</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --bg: #0a1628;
+    --panel: #0f2038;
+    --line: rgba(255,255,255,.09);
+    --ink: #e8eef7;
+    --dim: #8298b6;
+    --accent: #38bdf8;
+    --jev: #a78bfa;
+    --good: #34d399;
+    --bad: #f87171;
+    --warn: #fbbf24;
+  }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 28px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% 10%, rgba(56,189,248,.09), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 85% 90%, rgba(167,139,250,.08), transparent 60%);
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1680px; margin: 0 auto; }
+
+  header { margin-bottom: 22px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 800; letter-spacing: 4px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { margin: 0 0 8px; font-size: 32px; font-weight: 800; letter-spacing: -.8px; }
+  .lede { margin: 0; color: var(--dim); font-size: 16px; max-width: 760px; line-height: 1.55; }
+
+  .stage { display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: 22px; align-items: start; }
+  @media (max-width: 1180px) { .stage { grid-template-columns: 1fr; } }
+
+  .board {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 12px;
+    overflow: hidden;
+  }
+  svg { display: block; width: 100%; height: auto; }
+
+  .edge { fill: none; stroke: rgba(255,255,255,.14); stroke-width: 2.5; stroke-linecap: round; }
+  .edge.hot { stroke: var(--accent); stroke-width: 3.5; filter: drop-shadow(0 0 7px rgba(56,189,248,.65)); }
+  .edge.hot.jev { stroke: var(--jev); filter: drop-shadow(0 0 7px rgba(167,139,250,.65)); }
+  .edge.hot.good { stroke: var(--good); filter: drop-shadow(0 0 7px rgba(52,211,153,.6)); }
+  .edge.hot.bad { stroke: var(--bad); filter: drop-shadow(0 0 7px rgba(248,113,113,.6)); }
+  .edge.flow { stroke-dasharray: 9 11; animation: dash 1s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -20; } }
+
+  .nbox { fill: #13253f; stroke: rgba(255,255,255,.13); stroke-width: 2; }
+  .nbox.jevkind { fill: #1b1733; stroke: rgba(167,139,250,.4); }
+  .ntitle { fill: var(--ink); font-size: 19px; font-weight: 700; }
+  .nsub   { fill: var(--dim); font-size: 13.5px; }
+  .nicon  { font-size: 22px; }
+
+  .node.on .nbox { stroke: var(--accent); stroke-width: 3; filter: drop-shadow(0 0 16px rgba(56,189,248,.45)); }
+  .node.on.jevkind .nbox { stroke: var(--jev); filter: drop-shadow(0 0 18px rgba(167,139,250,.55)); }
+  .node.pass .nbox { stroke: var(--good); filter: drop-shadow(0 0 16px rgba(52,211,153,.5)); }
+  .node.fail .nbox { stroke: var(--bad); filter: drop-shadow(0 0 16px rgba(248,113,113,.5)); }
+  .node.done .nbox { stroke: rgba(52,211,153,.35); }
+  .node { transition: opacity .3s; }
+  .node.idle { opacity: .45; }
+
+  .verdict { font-size: 17px; font-weight: 800; }
+
+  .ball { filter: drop-shadow(0 0 12px rgba(56,189,248,.9)); }
+  .ball .core { fill: var(--accent); }
+  .ball.jev .core { fill: var(--jev); }
+  .ball.good .core { fill: var(--good); }
+  .ball.bad .core { fill: var(--bad); }
+  .ball .halo { fill: var(--accent); opacity: .22; }
+  .ball.jev .halo { fill: var(--jev); }
+  .ball.good .halo { fill: var(--good); }
+  .ball.bad .halo { fill: var(--bad); }
+  .ball .tag { fill: var(--ink); font-size: 12.5px; font-weight: 700; }
+
+  aside { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 28px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
+
+  .stepno { font-size: 12px; font-weight: 800; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; }
+  .card.jevcard .stepno { color: var(--jev); }
+  #nTitle { margin: 10px 0 12px; font-size: 22px; font-weight: 800; line-height: 1.25; }
+  #nBody { margin: 0; color: var(--dim); font-size: 15px; line-height: 1.65; }
+  #nBody b { color: var(--ink); font-weight: 600; }
+  #nBody code {
+    font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;
+    font-size: 13px; background: rgba(255,255,255,.07);
+    padding: 2px 6px; border-radius: 5px; color: #9fd8ff;
+  }
+
+  .chip {
+    display: inline-block; margin-top: 16px; padding: 7px 13px;
+    border-radius: 999px; font-size: 12.5px; font-weight: 800; letter-spacing: .4px;
+  }
+  .chip.jev  { background: rgba(167,139,250,.16); color: var(--jev);  border: 1px solid rgba(167,139,250,.35); }
+  .chip.det  { background: rgba(56,189,248,.14);  color: var(--accent); border: 1px solid rgba(56,189,248,.32); }
+  .chip.good { background: rgba(52,211,153,.14);  color: var(--good); border: 1px solid rgba(52,211,153,.32); }
+  .chip.bad  { background: rgba(248,113,113,.14); color: var(--bad);  border: 1px solid rgba(248,113,113,.32); }
+
+  .ctrls { display: flex; gap: 9px; flex-wrap: wrap; }
+  button {
+    flex: 1; min-width: 78px; background: #16294a; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 11px;
+    padding: 11px 12px; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: .15s;
+  }
+  button:hover { background: #1d3459; border-color: rgba(56,189,248,.45); }
+  button.primary { background: var(--accent); color: #062033; border-color: transparent; }
+  button.primary:hover { background: #7dd3fc; }
+
+  .track { margin-top: 4px; }
+  .track-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.055);
+    font-size: 13.5px; color: var(--dim); transition: .2s;
+  }
+  .track-row:last-child { border-bottom: 0; }
+  .track-row .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: rgba(255,255,255,.18); flex: none;
+  }
+  .track-row.active { color: var(--ink); font-weight: 700; }
+  .track-row.active .dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .track-row.past .dot { background: var(--good); }
+
+  footer { margin-top: 22px; color: var(--dim); font-size: 13px; line-height: 1.6; }
+  footer a { color: var(--accent); }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: var(--dim); }
+  .legend span { display: flex; align-items: center; gap: 7px; }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">civica-playwright-challenge · ADR 0006</div>
+    <h1>Cómo viaja una feature por el pipeline</h1>
+    <p class="lede">
+      Seguí la bolita. Es una historia de usuario desde que se implementa hasta que se certifica —
+      incluida la vuelta que da cuando algo falla. Los nodos <b style="color:var(--jev)">violeta</b>
+      son donde entra Jev.
+    </p>
+  </header>
+
+  <div class="stage">
+    <div class="board">
+      <svg id="svg" viewBox="0 0 1640 1020" role="img" aria-label="Diagrama del pipeline de pruebas">
+        <g id="edges"></g>
+        <g id="nodes"></g>
+        <g id="balls"></g>
+      </svg>
+    </div>
+
+    <aside>
+      <div class="card" id="narr">
+        <div class="stepno" id="nStep">Listo para empezar</div>
+        <h2 id="nTitle">Una HU entra al pipeline</h2>
+        <p id="nBody">Dale a <b>Reproducir</b> para seguir el recorrido completo.</p>
+        <div id="nChip"></div>
+      </div>
+
+      <div class="card">
+        <div class="ctrls">
+          <button class="primary" id="play">▶ Reproducir</button>
+          <button id="step">Paso →</button>
+          <button id="reset">↺ Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="stepno" style="margin-bottom:6px">Recorrido</div>
+        <div class="track" id="track"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:#38bdf8"></i> Determinista (locators, POM)</span>
+    <span><i class="swatch" style="background:#a78bfa"></i> Jev · decisión probabilística</span>
+    <span><i class="swatch" style="background:#34d399"></i> Verde / certificable</span>
+    <span><i class="swatch" style="background:#f87171"></i> Rojo / a triage</span>
+  </div>
+
+  <footer>
+    Detalle técnico y trade-offs → <a href="adr/0006-jev-semantic-oracle.md">ADR 0006</a> ·
+    Versión para entender de cero → <a href="jev-explicado.es.md">Jev explicado</a> ·
+    Correlo con <code>npm run test:jev</code>
+  </footer>
+</div>
+
+<script>
+const NODES = {
+  hu:      { x: 140,  y: 100, w: 210, h: 78, icon:'📋', t:'HU / Feature',     s:'con criterios de aceptación' },
+  dev:     { x: 430,  y: 100, w: 190, h: 78, icon:'⌨️', t:'Implementación',   s:'código + PR' },
+  ci:      { x: 700,  y: 100, w: 175, h: 78, icon:'⚙️', t:'CI',              s:'GitHub Actions' },
+  pw:      { x: 985,  y: 100, w: 220, h: 78, icon:'🎭', t:'Playwright',       s:'navega el flujo real' },
+
+  loc:     { x: 500,  y: 350, w: 235, h: 90, icon:'🎯', t:'Locators',         s:'¿existe este string?' },
+  sem:     { x: 830,  y: 350, w: 250, h: 90, icon:'🧠', t:'Jev · Semántico',  s:'¿comunica esto?', jev:1 },
+  sac:     { x: 1180, y: 350, w: 250, h: 90, icon:'📊', t:'Jev · Score AC',   s:'¿cumple los AC?', jev:1 },
+
+  verdict: { x: 830,  y: 570, w: 210, h: 80, icon:'⚖️', t:'Veredicto',        s:'verde o rojo' },
+
+  certify: { x: 400,  y: 790, w: 235, h: 88, icon:'🏅', t:'Certificación',    s:'con evidencia adjunta' },
+  triage:  { x: 1180, y: 790, w: 245, h: 88, icon:'🔎', t:'Jev · Triage',     s:'bug / infra / timing', jev:1 },
+
+  jira:    { x: 1440, y: 955, w: 180, h: 66, icon:'🐛', t:'Jira',            s:'solo bugs reales' },
+  retry:   { x: 950,  y: 955, w: 215, h: 66, icon:'↻',  t:'Reintento',        s:'infra y timing' },
+};
+
+const EDGES = [
+  { id:'e1',  a:'hu',      sa:'r', b:'dev',     sb:'l' },
+  { id:'e2',  a:'dev',     sa:'r', b:'ci',      sb:'l' },
+  { id:'e3',  a:'ci',      sa:'r', b:'pw',      sb:'l' },
+  { id:'e4',  a:'pw',      sa:'b', b:'loc',     sb:'t' },
+  { id:'e5',  a:'pw',      sa:'b', b:'sem',     sb:'t' },
+  { id:'e6',  a:'pw',      sa:'b', b:'sac',     sb:'t' },
+  { id:'e7',  a:'loc',     sa:'b', b:'verdict', sb:'t' },
+  { id:'e8',  a:'sem',     sa:'b', b:'verdict', sb:'t' },
+  { id:'e9',  a:'sac',     sa:'b', b:'verdict', sb:'t' },
+  { id:'e10', a:'verdict', sa:'b', b:'certify', sb:'t' },
+  { id:'e11', a:'verdict', sa:'b', b:'triage',  sb:'t' },
+  { id:'e12', a:'triage',  sa:'b', b:'jira',    sb:'t' },
+  { id:'e13', a:'triage',  sa:'b', b:'retry',   sb:'t' },
+  { id:'e14', a:'retry',   sa:'l', b:'pw',      sb:'r' },
+];
+
+const port = (n, s) => ({
+  r: { x: n.x + n.w/2, y: n.y },
+  l: { x: n.x - n.w/2, y: n.y },
+  t: { x: n.x, y: n.y - n.h/2 },
+  b: { x: n.x, y: n.y + n.h/2 },
+}[s]);
+
+function pathFor(e) {
+  const A = NODES[e.a], B = NODES[e.b];
+  const p1 = port(A, e.sa), p2 = port(B, e.sb);
+  const dx = Math.abs(p2.x - p1.x), dy = Math.abs(p2.y - p1.y);
+  const cp = (p, s, ox, oy) => ({
+    r: { x: p.x + Math.max(ox * .55, 70), y: p.y },
+    l: { x: p.x - Math.max(ox * .55, 70), y: p.y },
+    t: { x: p.x, y: p.y - Math.max(oy * .55, 60) },
+    b: { x: p.x, y: p.y + Math.max(oy * .55, 60) },
+  }[s]);
+  const c1 = cp(p1, e.sa, dx, dy), c2 = cp(p2, e.sb, dx, dy);
+  if (e.id === 'e14') {
+    return `M ${p1.x} ${p1.y} C ${p1.x - 340} ${p1.y}, ${p2.x + 300} ${p2.y + 300}, ${p2.x} ${p2.y}`;
+  }
+  return `M ${p1.x} ${p1.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${p2.x} ${p2.y}`;
+}
+
+const NS = 'http://www.w3.org/2000/svg';
+const el = (n, a = {}) => {
+  const x = document.createElementNS(NS, n);
+  for (const k in a) x.setAttribute(k, a[k]);
+  return x;
+};
+
+const gEdges = document.getElementById('edges');
+const gNodes = document.getElementById('nodes');
+const gBalls = document.getElementById('balls');
+const paths = {};
+
+for (const e of EDGES) {
+  const p = el('path', { d: pathFor(e), class: 'edge', id: e.id });
+  gEdges.appendChild(p);
+  paths[e.id] = p;
+}
+
+const nodeEls = {};
+for (const k in NODES) {
+  const n = NODES[k];
+  const g = el('g', { class: 'node idle' + (n.jev ? ' jevkind' : '') });
+  g.appendChild(el('rect', {
+    x: n.x - n.w/2, y: n.y - n.h/2, width: n.w, height: n.h,
+    rx: 16, class: 'nbox' + (n.jev ? ' jevkind' : ''),
+  }));
+  const ic = el('text', { x: n.x - n.w/2 + 20, y: n.y + 6, class: 'nicon' });
+  ic.textContent = n.icon;
+  g.appendChild(ic);
+  const t = el('text', { x: n.x - n.w/2 + 52, y: n.y - 4, class: 'ntitle' });
+  t.textContent = n.t;
+  g.appendChild(t);
+  const s = el('text', { x: n.x - n.w/2 + 52, y: n.y + 19, class: 'nsub' });
+  s.textContent = n.s;
+  g.appendChild(s);
+  const v = el('text', { x: n.x, y: n.y + n.h/2 + 26, class: 'verdict', 'text-anchor': 'middle' });
+  g.appendChild(v);
+  gNodes.appendChild(g);
+  nodeEls[k] = { g, verdict: v };
+}
+
+function makeBall(kind, tag) {
+  const g = el('g', { class: 'ball' + (kind ? ' ' + kind : '') });
+  g.appendChild(el('circle', { r: 19, class: 'halo' }));
+  g.appendChild(el('circle', { r: 9, class: 'core' }));
+  if (tag) {
+    const t = el('text', { class: 'tag', 'text-anchor': 'start', x: 26, y: 5, opacity: 0 });
+    t.textContent = tag;
+    g.appendChild(t);
+  }
+  gBalls.appendChild(g);
+  return g;
+}
+
+const easeInOut = t => t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+let speed = 1;
+
+function travel(edgeId, kind, tag, ms = 1100) {
+  return new Promise(res => {
+    const path = paths[edgeId];
+    const len = path.getTotalLength();
+    const ball = makeBall(kind, tag);
+    const label = ball.querySelector('.tag');
+    path.classList.add('hot', 'flow');
+    if (kind) path.classList.add(kind);
+    const t0 = performance.now();
+    const dur = ms / speed;
+    (function frame(now) {
+      const raw = Math.min(1, (now - t0) / dur);
+      const p = path.getPointAtLength(easeInOut(raw) * len);
+      ball.setAttribute('transform', `translate(${p.x} ${p.y})`);
+      if (label) {
+        const fade = Math.min(1, Math.max(0, (raw - 0.12) / 0.15)) * Math.min(1, (1 - raw) / 0.15);
+        label.setAttribute('opacity', String(fade));
+      }
+      if (raw < 1) { requestAnimationFrame(frame); }
+      else {
+        ball.remove();
+        path.classList.remove('flow');
+        setTimeout(() => path.classList.remove('hot', 'jev', 'good', 'bad'), 500);
+        res();
+      }
+    })(t0);
+  });
+}
+
+const wait = ms => new Promise(r => setTimeout(r, ms / speed));
+
+function setNode(key, cls) {
+  const n = nodeEls[key];
+  n.g.classList.remove('idle', 'on', 'pass', 'fail', 'done');
+  if (cls) n.g.classList.add(cls);
+}
+function verdictText(key, txt, color) {
+  const v = nodeEls[key].verdict;
+  v.textContent = txt || '';
+  v.style.fill = color || 'var(--dim)';
+}
+
+const STEPS = [
+  {
+    label: 'Llega la HU',
+    step: 'Paso 1 · Entrada',
+    title: 'Una historia de usuario entra al pipeline',
+    body: 'Trae sus <b>criterios de aceptación</b> escritos. Ese texto va a importar dos veces: cuando se implementa, y cuando Jev lo use como rúbrica para puntuar la evidencia.',
+    chip: null,
+    run: async () => { setNode('hu', 'on'); await wait(700); },
+  },
+  {
+    label: 'Se implementa',
+    step: 'Paso 2 · Desarrollo',
+    title: 'El equipo la construye',
+    body: 'Código, PR, revisión. Nada nuevo acá — Jev no toca el desarrollo.',
+    chip: null,
+    run: async () => {
+      await travel('e1', '', 'HU');
+      setNode('hu', 'done'); setNode('dev', 'on');
+      await travel('e2', '', '');
+      setNode('dev', 'done'); setNode('ci', 'on');
+      await wait(400);
+    },
+  },
+  {
+    label: 'Corre Playwright',
+    step: 'Paso 3 · Ejecución',
+    title: 'Playwright navega el flujo real',
+    body: 'Levanta Chromium, abre la app y ejecuta los pasos del usuario a través de los Page Objects. Al final queda una pantalla con un estado observable.',
+    chip: { cls: 'det', txt: 'Determinista' },
+    run: async () => {
+      await travel('e3', '', '');
+      setNode('ci', 'done'); setNode('pw', 'on');
+      await wait(500);
+    },
+  },
+  {
+    label: 'Tres oráculos en paralelo',
+    step: 'Paso 4 · Oráculos',
+    title: 'La misma pantalla, juzgada de tres formas',
+    body: 'El <b>locator</b> pregunta si existe un string exacto. <b>Jev</b> pregunta si la pantalla <i>comunica</i> algo, y qué tan completo cumple los AC. Jev evalúa todas sus preguntas en paralelo: preguntar tres cosas cuesta casi lo mismo que preguntar una.',
+    chip: { cls: 'jev', txt: 'Jev · ~200 ms' },
+    run: async () => {
+      setNode('loc', 'on'); setNode('sem', 'on'); setNode('sac', 'on');
+      await Promise.all([
+        travel('e4', '', 'locator', 1200),
+        travel('e5', 'jev', 'jev', 1200),
+        travel('e6', 'jev', 'jev', 1200),
+      ]);
+      verdictText('loc', '✗ no match', 'var(--bad)');
+      verdictText('sem', '0.96', 'var(--jev)');
+      verdictText('sac', '2.9 / 3', 'var(--jev)');
+      await wait(900);
+    },
+  },
+  {
+    label: 'Se consolida el veredicto',
+    step: 'Paso 5 · Veredicto',
+    title: 'Un locator se rompió — el resto dice que está bien',
+    body: 'Cambiaron el copy del mensaje, así que el locator no encuentra su string. Pero Jev confirma que la pantalla <b>sigue comunicando lo mismo</b> (0.96) y que cumple los AC (2.9/3). La suite igual se pone en rojo: el veredicto lo siguen dando los asserts, no Jev.',
+    chip: { cls: 'bad', txt: 'Rojo' },
+    run: async () => {
+      await Promise.all([travel('e7','','',900), travel('e8','jev','',900), travel('e9','jev','',900)]);
+      setNode('loc','done'); setNode('sem','done'); setNode('sac','done');
+      setNode('verdict', 'fail');
+      verdictText('verdict', 'FALLA', 'var(--bad)');
+      await wait(800);
+    },
+  },
+  {
+    label: 'Jev clasifica los fallos',
+    step: 'Paso 6 · Triage',
+    title: 'Antes de que nadie abra el reporte',
+    body: 'El reporter le pasa a Jev el error, el stack y los logs de cada fallo, y le pide una sola decisión: <code>bug</code>, <code>selector</code>, <code>timing</code>, <code>infra</code> o <code>data</code>. Corre en <code>onEnd</code>, así que no suma latencia al pipeline ni cambia ningún veredicto.',
+    chip: { cls: 'jev', txt: 'Jev · choice + distribución' },
+    run: async () => {
+      await travel('e11', 'bad', '4 fallos', 1100);
+      setNode('verdict', 'done'); setNode('triage', 'on');
+      await wait(700);
+      verdictText('triage', '1 bug · 3 ambiente', 'var(--jev)');
+      await wait(700);
+    },
+  },
+  {
+    label: 'Se separan los caminos',
+    step: 'Paso 7 · Ruteo',
+    title: 'Solo el bug real llega a Jira',
+    body: 'El defecto verdadero se reporta con severidad y componente ya rellenos. Los tres de ambiente y timing se reintentan solos: nadie los mira, nadie pierde la mañana leyendo sus stacktraces.',
+    chip: { cls: 'good', txt: 'De 2 horas a 5 minutos' },
+    run: async () => {
+      setNode('jira','on'); setNode('retry','on');
+      await Promise.all([
+        travel('e12', 'bad', 'bug', 1000),
+        travel('e13', '', '3× reintento', 1000),
+      ]);
+      verdictText('jira', 'reportado', 'var(--bad)');
+      await wait(600);
+    },
+  },
+  {
+    label: 'Segunda vuelta',
+    step: 'Paso 8 · Reintento',
+    title: 'Los de ambiente vuelven a correr',
+    body: 'Esta vez el backend responde. Y el locator roto ya se arregló — o se reemplazó por una aserción semántica, que era el punto.',
+    chip: { cls: 'det', txt: 'Sin intervención humana' },
+    run: async () => {
+      setNode('triage','done'); setNode('jira','done');
+      await travel('e14', '', 'retry', 1500);
+      setNode('retry','done'); setNode('pw','on');
+      verdictText('loc',''); verdictText('sem',''); verdictText('sac',''); verdictText('verdict','');
+      setNode('verdict', null);
+      await wait(400);
+      setNode('loc','on'); setNode('sem','on'); setNode('sac','on');
+      await Promise.all([
+        travel('e4','','',850), travel('e5','jev','',850), travel('e6','jev','',850),
+      ]);
+      verdictText('loc','✓','var(--good)');
+      verdictText('sem','0.97','var(--jev)');
+      verdictText('sac','3.0 / 3','var(--jev)');
+      await wait(700);
+      await Promise.all([travel('e7','good','',800), travel('e8','good','',800), travel('e9','good','',800)]);
+      setNode('verdict','pass');
+      verdictText('verdict','VERDE','var(--good)');
+      await wait(700);
+    },
+  },
+  {
+    label: 'Se certifica',
+    step: 'Paso 9 · Cierre',
+    title: 'Verde, con la evidencia adjunta',
+    body: 'Cada decisión de Jev dejó en el reporte <b>el estado exacto que juzgó</b> y la distribución completa de probabilidades. Sin eso, un 0.97 es un número que nadie puede defender — y una certificación que nadie puede auditar.',
+    chip: { cls: 'good', txt: 'Certificable' },
+    run: async () => {
+      await travel('e10', 'good', 'HU ✓', 1200);
+      setNode('verdict','done'); setNode('certify','pass');
+      verdictText('certify','evidencia adjunta','var(--good)');
+      await wait(900);
+    },
+  },
+];
+
+const trackEl = document.getElementById('track');
+STEPS.forEach((s, i) => {
+  const row = document.createElement('div');
+  row.className = 'track-row';
+  row.innerHTML = `<i class="dot"></i><span>${s.label}</span>`;
+  row.dataset.i = i;
+  trackEl.appendChild(row);
+});
+const rows = [...trackEl.children];
+
+let idx = 0, playing = false, busy = false;
+
+function resetAll() {
+  for (const k in nodeEls) { setNode(k, 'idle'); verdictText(k, ''); }
+  for (const id in paths) paths[id].classList.remove('hot','flow','jev','good','bad');
+  gBalls.innerHTML = '';
+  rows.forEach(r => r.className = 'track-row');
+  idx = 0;
+  document.getElementById('nStep').textContent = 'Listo para empezar';
+  document.getElementById('nTitle').textContent = 'Una HU entra al pipeline';
+  document.getElementById('nBody').innerHTML = 'Dale a <b>Reproducir</b> para seguir el recorrido completo.';
+  document.getElementById('nChip').innerHTML = '';
+  document.getElementById('narr').classList.remove('jevcard');
+}
+
+async function runStep() {
+  if (busy || idx >= STEPS.length) return false;
+  busy = true;
+  const s = STEPS[idx];
+
+  document.getElementById('nStep').textContent = s.step;
+  document.getElementById('nTitle').textContent = s.title;
+  document.getElementById('nBody').innerHTML = s.body;
+  document.getElementById('nChip').innerHTML = s.chip
+    ? `<span class="chip ${s.chip.cls}">${s.chip.txt}</span>` : '';
+  document.getElementById('narr').classList.toggle('jevcard', s.chip?.cls === 'jev');
+
+  rows.forEach((r, i) => {
+    r.className = 'track-row' + (i === idx ? ' active' : i < idx ? ' past' : '');
+  });
+
+  await s.run();
+  idx++;
+  busy = false;
+  return idx < STEPS.length;
+}
+
+document.getElementById('step').onclick = () => { playing = false; setPlayLabel(); runStep(); };
+document.getElementById('reset').onclick = () => { playing = false; setPlayLabel(); resetAll(); };
+document.getElementById('play').onclick = async () => {
+  if (playing) { playing = false; setPlayLabel(); return; }
+  if (idx >= STEPS.length) resetAll();
+  playing = true; setPlayLabel();
+  while (playing && idx < STEPS.length) {
+    const more = await runStep();
+    if (!more) break;
+    await wait(500);
+  }
+  playing = false; setPlayLabel();
+};
+function setPlayLabel() {
+  document.getElementById('play').textContent = playing ? '⏸ Pausar' : '▶ Reproducir';
+}
+
+resetAll();
+</script>
+</body>
+</html>

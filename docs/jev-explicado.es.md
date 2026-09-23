@@ -117,4 +117,5 @@ Sin llave: corre, muestra el flujo y avisa que no juzgó nada.
 
 Con llave: `export TYPESAFE_API_KEY=...` y ahora sí decide de verdad.
 
+🎬 Vela moverse → [Diagrama interactivo del pipeline](jev-pipeline.html)
 📄 Detalle técnico y decisiones → [ADR 0006](adr/0006-jev-semantic-oracle.md)
