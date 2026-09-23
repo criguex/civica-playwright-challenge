@@ -73,7 +73,26 @@ Two constraints are non-negotiable:
 - Tests survive rewording, i18n and redesigns; they fail when meaning
   regresses, which is what the acceptance criteria actually asked for.
 - Triage drops from reading every stacktrace to reviewing the handful Jev
-  flagged as real defects.
+  flagged as real defects. Measured against seeded failures whose titles gave
+  nothing away (`scenario alpha`…`delta`, so only the error and stack were
+  available to judge):
+
+  | Seeded fault | Classified | Confidence | Runner-up |
+  | --- | --- | --- | --- |
+  | Unresolvable host | infra | 0.99 | — |
+  | Rating asserted as 9.9, actual 8.8 | bug | 0.85 | data 0.10 |
+  | `data-testid` absent from the DOM | selector | 0.72 | timing 0.19 |
+
+  Three for three, and the confidence spread is the useful part: a DNS failure
+  is unambiguous, a failed equality could plausibly be stale fixtures, and a
+  locator timeout genuinely could be either rot or a race. `retryWouldPass`
+  stayed at 0.15-0.31 throughout, correctly — none of these recover on retry.
+  Gate on confidence around 0.75: route the decisive ones automatically and
+  put the rest in front of a human.
+
+  Not covered: the `timing` class was never observed, because the probe meant
+  to trigger it passed instead. A genuine race is the hardest of the five to
+  seed deterministically and remains untested.
 - The repo stays clonable and green without an account or a key.
 - **Jev is a hosted black box.** No weights, no self-hosting, and state leaves
   the machine. Do not point it at regulated or customer data without approval;
