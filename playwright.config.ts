@@ -1,5 +1,12 @@
+import { config as loadEnv } from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
 import { testConfig } from './src/config/testConfig.js';
+
+/* Load .env before anything reads process.env, so a key on disk is enough to
+ * take the Jev helpers out of offline mode. Without this a fresh shell runs
+ * the semantic assertions as no-ops and the skip is easy to mistake for a
+ * broken suite. Values already in the environment win. */
+loadEnv();
 
 /**
  * Central Playwright configuration.

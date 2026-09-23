@@ -25,6 +25,10 @@ import { logger } from '../utils/logger.js';
 
 const DEFAULT_THRESHOLD = 0.8;
 
+/* Stated rather than derived from the threshold: `1 - 0.8` is 0.19999999999999996
+ * in binary floating point, and that lands verbatim in the attached evidence. */
+const DEFAULT_CEILING = 0.2;
+
 async function attach(name: string, body: unknown): Promise<void> {
   const info = test.info();
   await info.attach(name, {
@@ -106,7 +110,7 @@ export async function expectNotSemantic(
   claim: string,
   options: SemanticOptions = {},
 ): Promise<number> {
-  const ceiling = options.threshold ?? 1 - DEFAULT_THRESHOLD;
+  const ceiling = options.threshold ?? DEFAULT_CEILING;
   const state = options.state ?? (await visibleText(page));
 
   const result = await ask(state, { holds: noul(claim) });

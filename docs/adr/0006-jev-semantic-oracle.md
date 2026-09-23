@@ -81,5 +81,21 @@ Two constraints are non-negotiable:
 - **Vendor benchmarks are vendor benchmarks.** The published speed and cost
   multiples come from TypeSafe's own evals. Measure against our data before
   trusting a threshold.
-- Thresholds are a new tuning surface. `0.8` is a starting point, not a
-  finding; calibrate per assertion against known-good and known-bad states.
+- Thresholds are a new tuning surface. First run against the live model
+  (`jev-latest` via Vercel AI Gateway) on the mock catalogue:
+
+  | Claim | Probability |
+  | --- | --- |
+  | Page reports no matching titles (true) | 0.99 |
+  | Page presents Inception with rating and year (true) | 0.98 |
+  | Page shows an error (false) | 0.02 |
+  | Page presents The Matrix, 1999 (false) | 0.01 |
+  | Acceptance criteria fulfilment | 2.83 / 3, confidence 0.83 |
+
+  The oracle discriminates cleanly, but note what this does *not* establish:
+  every case landed at a pole, so nothing exercised the boundary. Any
+  threshold between roughly 0.1 and 0.9 would have produced identical
+  verdicts. `0.8` is therefore still unvalidated — it is only known not to be
+  wrong on unambiguous inputs. Calibrate it against genuinely marginal states
+  (partial renders, half-translated copy, a rating present but stale) before
+  trusting it to gate a release.

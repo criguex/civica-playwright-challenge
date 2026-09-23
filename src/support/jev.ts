@@ -212,7 +212,10 @@ export async function ask<Q extends Record<string, JevQuestion>>(
     });
 
     if (!response.ok) {
-      throw new Error(`${response.status} ${response.statusText}`);
+      const detail = await response.text().catch(() => '');
+      throw new Error(
+        `${response.status} ${response.statusText} via ${route.via} — ${detail.slice(0, 400) || 'no body'}`,
+      );
     }
 
     const payload = (await response.json()) as {

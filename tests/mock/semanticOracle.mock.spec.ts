@@ -59,6 +59,18 @@ test.describe('Semantic oracle @mock @jev', () => {
     await expectNotSemantic(page, 'The page shows an error, warning or failure message');
   });
 
+  test('rejects a claim that is false about the page @calibration', async ({
+    homePage,
+    searchResultsPage,
+    page,
+  }) => {
+    await homePage.open();
+    await homePage.searchFor('Inception');
+    await searchResultsPage.openFirstResult('Inception');
+
+    await expectNotSemantic(page, 'The page presents a film titled The Matrix, released in 1999');
+  });
+
   test('scores the details page against its acceptance criteria', async ({
     homePage,
     searchResultsPage,
