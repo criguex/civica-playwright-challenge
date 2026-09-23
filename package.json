@@ -25,7 +25,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "playwright install chromium"
+    "postinstall": "playwright install chromium",
+    "test:jev": "playwright test --project=mock --grep @jev"
   },
   "keywords": [
     "playwright",

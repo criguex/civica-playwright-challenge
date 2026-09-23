@@ -28,12 +28,13 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
 
-  /* Reporters: console + HTML + JUnit + the mutation-insights learning ledger. */
+  /* Reporters: console + HTML + JUnit + mutation-insights ledger + Jev triage. */
   reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
     ['./reporters/mutationInsightsReporter.ts'],
+    ['./reporters/jevTriageReporter.ts'],
   ],
 
   use: {

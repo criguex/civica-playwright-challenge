@@ -30,6 +30,13 @@ export default tseslint.config(
     rules: {
       // Conditional skips (behind the anti-bot wall) are intentional and honest.
       'playwright/no-skipped-test': ['warn', { allowConditional: true }],
+      // The semantic oracle helpers assert internally; teach the rule about them.
+      'playwright/expect-expect': [
+        'warn',
+        {
+          assertFunctionNames: ['expectSemantic', 'expectNotSemantic', 'scoreAgainstCriteria'],
+        },
+      ],
     },
   },
 );
