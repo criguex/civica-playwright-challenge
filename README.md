@@ -28,6 +28,7 @@
 - [Test scenarios](#-test-scenarios)
 - [Mutant scenarios — coverage that learns](#-mutant-scenarios--coverage-that-learns)
 - [Accessibility](#-accessibility)
+- [Audit POCs — a future security-audit service](#-audit-pocs--a-future-security-audit-service)
 - [Why a mock layer?](#-why-a-mock-layer)
 - [Getting started](#-getting-started)
 - [Available scripts](#-available-scripts)
@@ -53,13 +54,14 @@ IMDb actively blocks automation behind a _"Let's confirm you are human"_ wall
 **green and demonstrable regardless of a third party's availability**, the suite
 runs in projects that share the **exact same Page Objects**:
 
-| Project        | Backend                                        | Reliability                                         | When                 |
-| -------------- | ---------------------------------------------- | --------------------------------------------------- | -------------------- |
-| **`mock`**     | In-process IMDb replica (request interception) | ✅ Deterministic, offline, always green             | Default · CI · demos |
-| **`mutation`** | Mock + generated mutant scenarios              | ✅ Deterministic, self-learning                     | Coverage expansion   |
-| **`e2e`**      | Live `imdb.com`                                | ⚠️ Best-effort — skips honestly behind the bot wall | Opt-in exploration   |
+| Project        | Backend                                          | Reliability                                         | When                                        |
+| -------------- | ------------------------------------------------ | --------------------------------------------------- | ------------------------------------------- |
+| **`mock`**     | In-process IMDb replica (request interception)   | ✅ Deterministic, offline, always green             | Default · CI · demos                        |
+| **`mutation`** | Mock + generated mutant scenarios                | ✅ Deterministic, self-learning                     | Coverage expansion                          |
+| **`audit`**    | Security-audit-service POCs (web/mobile/mutants) | ✅ Deterministic, offline                           | Service preview — [docs](docs/AUDIT-POC.md) |
+| **`e2e`**      | Live `imdb.com`                                  | ⚠️ Best-effort — skips honestly behind the bot wall | Opt-in exploration                          |
 
-> **42 tests — 40 passing, 2 honestly skipped** (live E2E behind the anti-bot wall).
+> **51 tests — 49 passing, 2 honestly skipped** (live E2E behind the anti-bot wall).
 
 ---
 
@@ -78,6 +80,7 @@ runs in projects that share the **exact same Page Objects**:
 | ➕  | Data-driven + negative tests, deep validations     | [`tests/mock/`](tests/mock)                                                                                                                             |
 | ➕  | Accessibility (axe-core)                           | [`tests/mock/accessibility.mock.spec.ts`](tests/mock/accessibility.mock.spec.ts)                                                                        |
 | ➕  | Learning mutant scenarios                          | [`docs/MUTATION-TESTING.md`](docs/MUTATION-TESTING.md)                                                                                                  |
+| ➕  | Security-audit-service POCs                        | [`docs/AUDIT-POC.md`](docs/AUDIT-POC.md)                                                                                                                |
 
 ---
 
@@ -91,7 +94,8 @@ runs in projects that share the **exact same Page Objects**:
 - **♿ Accessibility checks** — axe-core gates serious/critical violations on every mock page.
 - **Custom matchers** — `toBeValidRating`, `toBeValidReleaseYear` for expressive, domain-level assertions.
 - **Honest E2E** — live tests `skip` with a clear reason behind the bot wall instead of failing.
-- **CI-ready** — GitHub Actions runs lint + typecheck + mock + mutation suites and uploads reports.
+- **🔒 Audit-service POCs** — web-exposure scanner, Android static analysis, and mutants that measure the auditor's own kill rate.
+- **CI-ready** — GitHub Actions runs lint + typecheck + mock + mutation + audit suites and uploads reports.
 
 ---
 
@@ -169,6 +173,12 @@ civica-playwright-challenge/
 │   │   ├── mutations.ts             # 🧬 Mutant-scenario generator
 │   │   ├── mutationInsights.ts      # Learning loop (load + prioritize)
 │   │   └── mutationPaths.ts         # Ledger location
+│   ├── audit/                       # 🔒 Audit-service POCs — see docs/AUDIT-POC.md
+│   │   ├── webExposureScanner.ts · exposureDetectors.ts · secretPatterns.ts
+│   │   ├── securityHeaders.ts · cookieAudit.ts
+│   │   ├── androidStaticAnalyzer.ts
+│   │   ├── securityMutations.ts · auditMutationPaths.ts
+│   │   └── types.ts · auditReportRenderer.ts · auditReportWriter.ts
 │   └── utils/logger.ts              # Single logging seam
 ├── tests/
 │   ├── mock/                        # Deterministic suite (default) + a11y
@@ -178,18 +188,25 @@ civica-playwright-challenge/
 │   │   └── accessibility.mock.spec.ts
 │   ├── mutation/                    # 🧬 Learning mutant scenarios
 │   │   └── searchMutants.mutation.spec.ts
+│   ├── audit/                       # 🔒 Audit POCs (web / mobile / mutants)
+│   │   ├── webExposure.audit.spec.ts
+│   │   ├── androidStaticAudit.audit.spec.ts
+│   │   └── securityMutants.audit.spec.ts
 │   └── e2e/                         # Live-site suite (opt-in)
 │       ├── searchMovie.e2e.spec.ts
 │       └── top250.e2e.spec.ts
 ├── mocks/
-│   ├── data/movies.ts               # Catalogue — single source of truth
+│   ├── data/movies.ts · accountApp.ts · androidApp.ts   # Catalogues — single source of truth
 │   └── server/
 │       ├── imdbMockRouter.ts        # Request interception → HTML
+│       ├── accountAppMock.ts        # 🔒 Fictitious app for the web-exposure POC
 │       └── pageTemplates.ts         # IMDb-shaped HTML rendered from data
-├── reporters/mutationInsightsReporter.ts   # Writes the learning ledger
+├── reporters/
+│   ├── mutationInsightsReporter.ts         # Writes the search-mutant ledger
+│   └── auditMutationInsightsReporter.ts    # 🔒 Writes the security-mutant ledger
 ├── docs/                            # Guides, ADRs, diagrams, screenshots
-│   ├── GROWTH.md · MIGRATION.md · MUTATION-TESTING.md
-│   └── adr/0001…0005-*.md
+│   ├── GROWTH.md · MIGRATION.md · MUTATION-TESTING.md · AUDIT-POC.md
+│   └── adr/0001…0006-*.md
 ├── .github/workflows/ci.yml         # CI pipeline
 ├── Dockerfile                       # CI-parity execution
 ├── eslint.config.js · playwright.config.ts · tsconfig.json
@@ -327,6 +344,31 @@ npm run test:a11y
 
 ---
 
+## 🔒 Audit POCs — a future security-audit service
+
+A preview of a service built on the same mock-first approach: scan what a
+flow exposes over the wire, scan what an Android package declares, and
+measure the auditor's own kill rate with security mutants — all offline, all
+on fixtures.
+
+```bash
+npm run test:audit
+```
+
+- **Web exposure** — PII/secret leaks (emails, phones, Luhn-checked card
+  numbers, JWTs/API keys), missing CSP/HSTS/X-Content-Type-Options, cookies
+  missing Secure/HttpOnly/SameSite.
+- **Mobile static audit** — dangerous permissions, exported components,
+  cleartext traffic, debuggable builds, hardcoded secrets, from a decoded
+  manifest fixture (documented path to a real APK via `rea`).
+- **Security mutants** — plant one defect at a time over a hardened baseline
+  and verify the scanners catch it; current kill rate **6/6 (100%)**.
+
+📖 What each POC demonstrates, how to run it, and its honest limits:
+**[docs/AUDIT-POC.md](docs/AUDIT-POC.md)**.
+
+---
+
 ## 🎭 Why a mock layer?
 
 Running the `e2e` suite against the real site returns IMDb's anti-bot
@@ -393,6 +435,7 @@ Running 19 tests using N workers
 | `npm run test:mock`                              | Same, explicit                         |
 | `npm run test:mutation`                          | 🧬 Learning mutant scenarios           |
 | `npm run test:a11y`                              | Accessibility checks only (`@a11y`)    |
+| `npm run test:audit`                             | 🔒 Security-audit-service POCs         |
 | `npm run test:e2e`                               | Live IMDb suite (opt-in)               |
 | `npm run test:all`                               | All projects                           |
 | `npm run test:headed` / `test:ui` / `test:debug` | Visible / interactive / step-through   |
@@ -421,6 +464,7 @@ All in [`playwright.config.ts`](playwright.config.ts) + [`src/config/testConfig.
 - **HTML report** → `playwright-report/` (`npm run report`).
 - **JUnit XML** → `test-results/junit.xml` (CI dashboards).
 - **Mutation ledger** → `test-results/mutation-insights.json` (learning input).
+- **Audit reports** → `test-results/audit/*.json`+`.html` and `test-results/audit-mutation-insights.json` (see [AUDIT-POC.md](docs/AUDIT-POC.md)).
 - **On failure** → screenshot, video and trace attached automatically.
 
 ---
@@ -438,7 +482,8 @@ flowchart LR
   E --> F[Typecheck]
   F --> G[Mock suite + a11y]
   G --> H[Mutation suite]
-  H --> I[Upload report + ledger]
+  H --> I[Audit POCs suite]
+  I --> J[Upload report + ledgers]
 ```
 
 CI runs the deterministic projects, so the pipeline is fast and never fails on
@@ -451,6 +496,7 @@ IMDb's bot defenses.
 - **[docs/GROWTH.md](docs/GROWTH.md)** — add pages, browsers, environments, Allure, visual regression, sharding, husky, API tests.
 - **[docs/MIGRATION.md](docs/MIGRATION.md)** — retarget to another site/app, run in Docker, cloud grids (BrowserStack/Sauce), other CIs (GitLab/Azure/Jenkins), upgrade Playwright.
 - **[docs/MUTATION-TESTING.md](docs/MUTATION-TESTING.md)** — extend the learning coverage engine.
+- **[docs/AUDIT-POC.md](docs/AUDIT-POC.md)** — the security-audit-service POCs, and how to scale them to a real app.
 - **[docs/adr/](docs/adr)** — the decisions behind the design.
 
 ---
