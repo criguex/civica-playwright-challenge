@@ -10,7 +10,7 @@ import { top250Order } from '../../mocks/data/movies.js';
 test.describe('TC2 · Navigate Top 250 movies @mock', () => {
   const firstMovie = top250Order[0];
 
-  test('opens the #1 chart movie and validates title, rating and year', async ({
+  test('opens the #1 chart movie and validates title, rating and year @smoke', async ({
     homePage,
     top250Page,
   }) => {

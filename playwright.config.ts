@@ -14,6 +14,14 @@ import { testConfig } from './src/config/testConfig.js';
  *  - `audit`    : security-audit-service POCs — web exposure scan, Android
  *                 static analysis, security mutants (see docs/AUDIT-POC.md).
  *                 Deterministic and offline, same as `mock`/`mutation`.
+ *  - `api`      : API + contract tests against an in-process mock backend
+ *                 (mocks/server/apiMockServer.ts), via Playwright `request` —
+ *                 no browser. Deterministic and offline.
+ *  - `performance` : Navigation Timing budgets over the mock. Deterministic
+ *                 enough for CI thanks to generous thresholds.
+ *  - `visual`   : `toHaveScreenshot` snapshots of the mock. Opt-in — see
+ *                 "Visual regression" in README.md for the cross-platform
+ *                 determinism caveat before wiring it into a new CI runner.
  *  - `e2e`      : hits the live IMDb site. Opt-in; skips honestly behind the
  *                 anti-bot wall.
  *
@@ -67,6 +75,20 @@ export default defineConfig({
     {
       name: 'audit',
       testDir: './tests/audit',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'api',
+      testDir: './tests/api',
+    },
+    {
+      name: 'performance',
+      testDir: './tests/performance',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'visual',
+      testDir: './tests/visual',
       use: { ...devices['Desktop Chrome'] },
     },
     {

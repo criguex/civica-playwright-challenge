@@ -30,6 +30,14 @@ docker build -t civica-pw .
 docker run --rm -v "$PWD":/work -w /work civica-pw npm test
 ```
 
+**Regenerating visual baselines** (`tests/visual/`) after an intentional UI
+change — always inside the container, never on macOS/Windows, so the
+committed `-linux.png` files stay the ones CI actually compares against:
+
+```bash
+docker run --rm -v "$PWD":/work -w /work civica-pw npm run test:visual:update
+```
+
 See the repo [`Dockerfile`](../Dockerfile).
 
 ## Migrate to a cloud grid (BrowserStack / LambdaTest / Sauce)

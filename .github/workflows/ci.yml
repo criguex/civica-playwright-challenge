@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    name: Lint + Typecheck + Mock, Mutation & Audit suites
+    name: Lint + Typecheck + full offline test catalog
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -43,6 +43,18 @@ jobs:
 
       - name: Run audit POCs suite
         run: npm run test:audit
+
+      - name: Run API suite
+        run: npm run test:api
+
+      - name: Run contract suite
+        run: npm run test:contract
+
+      - name: Run performance budget suite
+        run: npm run test:performance
+
+      - name: Run visual regression suite
+        run: npm run test:visual
 
       - name: Upload HTML report
         if: ${{ !cancelled() }}

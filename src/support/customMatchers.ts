@@ -1,4 +1,5 @@
 import { expect as baseExpect } from '@playwright/test';
+import { type ZodType } from 'zod';
 
 /**
  * Domain-specific assertions layered on top of Playwright's `expect`.
@@ -32,6 +33,22 @@ export const expect = baseExpect.extend({
       actual: received,
       message: () =>
         `expected ${received} ${pass ? 'not ' : ''}to be a plausible release year (1888–2100)`,
+    };
+  },
+
+  /** Asserts a value matches a zod schema — the contract-test primitive. */
+  toMatchSchema(received: unknown, schema: ZodType) {
+    const result = schema.safeParse(received);
+    const pass = result.success;
+    return {
+      pass,
+      name: 'toMatchSchema',
+      message: () =>
+        pass
+          ? 'expected value not to match the schema'
+          : `expected value to match the schema — violations:\n${result.error.issues
+              .map((issue) => `  ${issue.path.join('.') || '<root>'}: ${issue.message}`)
+              .join('\n')}`,
     };
   },
 });
