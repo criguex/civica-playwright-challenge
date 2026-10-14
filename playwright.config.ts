@@ -11,6 +11,9 @@ import { testConfig } from './src/config/testConfig.js';
  *                 accessibility checks.
  *  - `mutation` : mutant search scenarios generated from golden flows and
  *                 prioritized from previous-run insights (see docs).
+ *  - `audit`    : security-audit-service POCs — web exposure scan, Android
+ *                 static analysis, security mutants (see docs/AUDIT-POC.md).
+ *                 Deterministic and offline, same as `mock`/`mutation`.
  *  - `e2e`      : hits the live IMDb site. Opt-in; skips honestly behind the
  *                 anti-bot wall.
  *
@@ -58,6 +61,11 @@ export default defineConfig({
     {
       name: 'mutation',
       testDir: './tests/mutation',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'audit',
+      testDir: './tests/audit',
       use: { ...devices['Desktop Chrome'] },
     },
     {

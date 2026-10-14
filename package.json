@@ -13,6 +13,7 @@
     "test:mock": "playwright test --project=mock",
     "test:mutation": "playwright test --project=mutation",
     "test:a11y": "playwright test --project=mock --grep @a11y",
+    "test:audit": "playwright test --project=audit",
     "test:e2e": "playwright test --project=e2e",
     "test:all": "playwright test",
     "test:headed": "playwright test --project=mock --headed",
