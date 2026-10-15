@@ -11,6 +11,17 @@ import { testConfig } from './src/config/testConfig.js';
  *                 accessibility checks.
  *  - `mutation` : mutant search scenarios generated from golden flows and
  *                 prioritized from previous-run insights (see docs).
+ *  - `audit`    : security-audit-service POCs — web exposure scan, Android
+ *                 static analysis, security mutants (see docs/AUDIT-POC.md).
+ *                 Deterministic and offline, same as `mock`/`mutation`.
+ *  - `api`      : API + contract tests against an in-process mock backend
+ *                 (mocks/server/apiMockServer.ts), via Playwright `request` —
+ *                 no browser. Deterministic and offline.
+ *  - `performance` : Navigation Timing budgets over the mock. Deterministic
+ *                 enough for CI thanks to generous thresholds.
+ *  - `visual`   : `toHaveScreenshot` snapshots of the mock. Opt-in — see
+ *                 "Visual regression" in README.md for the cross-platform
+ *                 determinism caveat before wiring it into a new CI runner.
  *  - `e2e`      : hits the live IMDb site. Opt-in; skips honestly behind the
  *                 anti-bot wall.
  *
@@ -28,12 +39,13 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
 
-  /* Reporters: console + HTML + JUnit + the mutation-insights learning ledger. */
+  /* Reporters: console + HTML + JUnit + the mutation-insights learning ledgers. */
   reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
     ['./reporters/mutationInsightsReporter.ts'],
+    ['./reporters/auditMutationInsightsReporter.ts'],
   ],
 
   use: {
@@ -58,6 +70,25 @@ export default defineConfig({
     {
       name: 'mutation',
       testDir: './tests/mutation',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'audit',
+      testDir: './tests/audit',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'api',
+      testDir: './tests/api',
+    },
+    {
+      name: 'performance',
+      testDir: './tests/performance',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'visual',
+      testDir: './tests/visual',
       use: { ...devices['Desktop Chrome'] },
     },
     {

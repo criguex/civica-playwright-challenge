@@ -9,8 +9,8 @@ on:
 
 jobs:
   test:
-    name: Lint + Typecheck + Mock & Mutation suites
-    runs-on: ubuntu-latest
+    name: Lint + Typecheck + full offline test catalog
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -41,6 +41,21 @@ jobs:
       - name: Run mutation suite
         run: npm run test:mutation
 
+      - name: Run audit POCs suite
+        run: npm run test:audit
+
+      - name: Run API suite
+        run: npm run test:api
+
+      - name: Run contract suite
+        run: npm run test:contract
+
+      - name: Run performance budget suite
+        run: npm run test:performance
+
+      - name: Run visual regression suite
+        run: npm run test:visual
+
       - name: Upload HTML report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -55,5 +70,16 @@ jobs:
         with:
           name: mutation-insights
           path: test-results/mutation-insights.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload audit reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-reports
+          path: |
+            test-results/audit/
+            test-results/audit-mutation-insights.json
           retention-days: 14
           if-no-files-found: ignore

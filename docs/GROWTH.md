@@ -61,14 +61,14 @@ Keeps history, trends and step-level detail across runs.
 
 ## Visual regression
 
-Add snapshot assertions against the deterministic mock (stable pixels):
-
-```ts
-await expect(page).toHaveScreenshot('movie-details.png', { maxDiffPixelRatio: 0.01 });
-```
-
-Generate baselines in the **same OS as CI** (a Linux container) to avoid
-cross-platform rendering diffs — see [MIGRATION.md](MIGRATION.md) for the Docker recipe.
+Implemented in `tests/visual/pages.visual.spec.ts` (`npm run test:visual`). Baselines
+live under `tests/visual/*-snapshots/*-linux.png`, generated inside the repo's
+Docker image so they match CI pixel-for-pixel — see [MIGRATION.md](MIGRATION.md)
+for the exact command. Playwright already scopes snapshot filenames per OS
+(`-linux`/`-darwin`/`-win32`), so a baseline taken outside Docker on macOS or
+Windows never gets picked up in CI; regenerate with
+`npm run test:visual:update` inside the Docker container whenever a mock page
+changes on purpose.
 
 ## Pre-commit quality gates (husky)
 
@@ -81,8 +81,14 @@ echo "npx lint-staged" > .husky/pre-commit
 
 ## API / contract layer
 
-Playwright's `request` fixture can validate IMDb's (or your app's) APIs beside
-the UI tests, sharing the same config and reporters.
+Implemented: `tests/api/movies.api.spec.ts` (`npm run test:api`) drives
+Playwright's `request` fixture against an in-process mock backend
+(`mocks/server/apiMockServer.ts`, started by `src/fixtures/apiFixtures.ts`).
+`tests/api/movies.contract.spec.ts` (`npm run test:contract`) validates the
+same responses against the zod schemas in `src/contracts/movieApiSchemas.ts`
+via the `toMatchSchema` custom matcher — add a field to the API, add it to the
+schema, and any response missing it fails loudly instead of being adapted
+around.
 
 ## Mutant scenarios (learning coverage)
 

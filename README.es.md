@@ -19,6 +19,7 @@
 ## 📑 Tabla de contenido
 
 - [Visión general](#-visión-general)
+- [Tipos de prueba](#-tipos-de-prueba)
 - [Trazabilidad de requisitos](#-trazabilidad-de-requisitos)
 - [Puntos destacados](#-puntos-destacados)
 - [Arquitectura](#-arquitectura)
@@ -28,6 +29,7 @@
 - [Escenarios de prueba](#-escenarios-de-prueba)
 - [Escenarios mutantes — cobertura que aprende](#-escenarios-mutantes--cobertura-que-aprende)
 - [Accesibilidad](#-accesibilidad)
+- [POCs de auditoría — futuro servicio de seguridad](#-pocs-de-auditoría--futuro-servicio-de-seguridad)
 - [¿Por qué una capa de mocks?](#-por-qué-una-capa-de-mocks)
 - [Cómo empezar](#-cómo-empezar)
 - [Scripts disponibles](#-scripts-disponibles)
@@ -53,31 +55,69 @@ IMDb bloquea la automatización con un muro _"Let's confirm you are human"_ (ver
 framework debe mantenerse **verde y demostrable sin depender de un tercero**, la
 suite corre en proyectos que comparten los **mismos Page Objects**:
 
-| Proyecto       | Backend                                                 | Fiabilidad                                          | Cuándo                   |
-| -------------- | ------------------------------------------------------- | --------------------------------------------------- | ------------------------ |
-| **`mock`**     | Réplica de IMDb en proceso (interceptación de requests) | ✅ Determinista, offline, siempre verde             | Por defecto · CI · demos |
-| **`mutation`** | Mock + escenarios mutantes generados                    | ✅ Determinista, aprende solo                       | Ampliar cobertura        |
-| **`e2e`**      | `imdb.com` real                                         | ⚠️ Best-effort — skip honesto ante el muro anti-bot | Exploración opt-in       |
+| Proyecto          | Backend                                                 | Fiabilidad                                               | Cuándo                                          |
+| ----------------- | ------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------- |
+| **`mock`**        | Réplica de IMDb en proceso (interceptación de requests) | ✅ Determinista, offline, siempre verde                  | Por defecto · CI · demos                        |
+| **`mutation`**    | Mock + escenarios mutantes generados                    | ✅ Determinista, aprende solo                            | Ampliar cobertura                               |
+| **`audit`**       | POCs de servicio de auditoría (web/móvil/mutantes)      | ✅ Determinista, offline                                 | Preview de servicio — [docs](docs/AUDIT-POC.md) |
+| **`api`**         | Backend mock en proceso (socket real)                   | ✅ Determinista, offline                                 | Pruebas API + contrato                          |
+| **`performance`** | Mock + Navigation Timing API                            | ✅ Determinista, presupuestos holgados                   | Guardia de regresión                            |
+| **`visual`**      | Mock + capturas con baseline Linux                      | ✅ Determinista en Linux (CI) — opt-in en otros sistemas | Guardia de regresión visual                     |
+| **`e2e`**         | `imdb.com` real                                         | ⚠️ Best-effort — skip honesto ante el muro anti-bot      | Exploración opt-in                              |
 
-> **42 pruebas — 40 pasan, 2 se saltan honestamente** (E2E real tras el muro anti-bot).
+> **76 pruebas — 74 pasan, 2 se saltan honestamente** (E2E real tras el muro anti-bot). Ver [Tipos de prueba](#-tipos-de-prueba) para el catálogo completo.
+
+---
+
+## 🗂️ Tipos de prueba
+
+| Tipo                            | Qué valida                                                                        | Comando                    | Corre en CI                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------ |
+| **UI (mock, POM)**              | Flujos TC1/TC2, catálogo data-driven, insensibilidad a mayúsculas, sin resultados | `npm run test:mock`        | ✅ Sí                                                        |
+| **Accesibilidad**               | Violaciones `serious`/`critical` WCAG 2 A/AA (axe-core) en cada página mock       | `npm run test:a11y`        | ✅ Sí (parte de `mock`)                                      |
+| **Smoke**                       | Subconjunto rápido `@smoke` — un happy path por caso obligatorio (TC1 + TC2)      | `npm run test:smoke`       | ➖ No por separado (cubierto por `mock`)                     |
+| **Mutación (aprende)**          | Escenarios mutantes auto-verificables, priorizados con un ledger de aprendizaje   | `npm run test:mutation`    | ✅ Sí                                                        |
+| **POCs de auditoría**           | Exposición web (PII/secretos/headers), análisis estático Android, kill rate       | `npm run test:audit`       | ✅ Sí — ver [AUDIT-POC.md](docs/AUDIT-POC.md)                |
+| **API**                         | Códigos de estado, forma de la respuesta, headers contra un backend mock real     | `npm run test:api`         | ✅ Sí                                                        |
+| **Contrato**                    | Esquemas de respuesta (zod) — un drift se reporta, nunca se adapta el test        | `npm run test:contract`    | ✅ Sí                                                        |
+| **Presupuestos de rendimiento** | Navigation Timing (`domContentLoaded`/`load`) con umbrales holgados               | `npm run test:performance` | ✅ Sí                                                        |
+| **Regresión visual**            | Diff de píxeles (`toHaveScreenshot`) vs. baselines Linux generadas con Docker     | `npm run test:visual`      | ✅ Sí — baselines solo Linux, ver nota abajo                 |
+| **E2E (real)**                  | Mismos Page Objects contra `imdb.com` real; skip honesto ante el muro anti-bot    | `npm run test:e2e`         | ⚠️ Opt-in (incluido en `npm run test:all`, siempre se salta) |
+
+**Determinismo de la regresión visual** — Playwright nombra las baselines por
+sistema operativo (`*-linux.png` / `*-darwin.png` / `*-win32.png`), y solo los
+archivos `*-linux.png` están commiteados, generados dentro del
+[`Dockerfile`](Dockerfile) del repo (misma versión de Playwright/Chromium que
+instala CI). Una baseline tomada en macOS/Windows nunca la recoge CI. Si esto
+resulta flaky en el runner Ubuntu de CI, se puede quitar el paso "Run visual
+regression suite" de [`ci.yml`](.github/workflows/ci.yml) y dejar
+`npm run test:visual` como chequeo local/opt-in — ver
+[docs/GROWTH.md](docs/GROWTH.md) y [docs/MIGRATION.md](docs/MIGRATION.md)
+para la receta de generación de baselines con Docker.
 
 ---
 
 ## ✅ Trazabilidad de requisitos
 
-| #   | Requisito                                               | Dónde vive                                                                                                                                              |
-| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Playwright + TypeScript                                 | [`package.json`](package.json), [`tsconfig.json`](tsconfig.json)                                                                                        |
-| 2   | Page Object Model                                       | [`src/pages/`](src/pages)                                                                                                                               |
-| 3   | Config: navegador / reporter / base URL                 | [`playwright.config.ts`](playwright.config.ts)                                                                                                          |
-| 4   | Sin XPath/CSS — usar `getByRole` / `getByTestId` / …    | cada Page Object (ver [estrategia](#-estrategia-de-locators--sin-xpathcss))                                                                             |
-| 5   | **TC1** — Buscar y validar película                     | [`tests/mock/searchMovie.mock.spec.ts`](tests/mock/searchMovie.mock.spec.ts) · [`tests/e2e/searchMovie.e2e.spec.ts`](tests/e2e/searchMovie.e2e.spec.ts) |
-| 6   | **TC2** — Navegar Top 250 (vía menú)                    | [`tests/mock/top250.mock.spec.ts`](tests/mock/top250.mock.spec.ts) · [`tests/e2e/top250.e2e.spec.ts`](tests/e2e/top250.e2e.spec.ts)                     |
-| 7   | Mocks cuando nada está operativo                        | [`mocks/`](mocks)                                                                                                                                       |
-| 8   | Buenas prácticas / camelCase / SOLID / escalable        | [principios de diseño](#-principios-de-diseño)                                                                                                          |
-| ➕  | Pruebas data-driven + negativas, validaciones profundas | [`tests/mock/`](tests/mock)                                                                                                                             |
-| ➕  | Accesibilidad (axe-core)                                | [`tests/mock/accessibility.mock.spec.ts`](tests/mock/accessibility.mock.spec.ts)                                                                        |
-| ➕  | Escenarios mutantes que aprenden                        | [`docs/MUTATION-TESTING.md`](docs/MUTATION-TESTING.md)                                                                                                  |
+| #   | Requisito                                               | Dónde vive                                                                                                                                                   |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Playwright + TypeScript                                 | [`package.json`](package.json), [`tsconfig.json`](tsconfig.json)                                                                                             |
+| 2   | Page Object Model                                       | [`src/pages/`](src/pages)                                                                                                                                    |
+| 3   | Config: navegador / reporter / base URL                 | [`playwright.config.ts`](playwright.config.ts)                                                                                                               |
+| 4   | Sin XPath/CSS — usar `getByRole` / `getByTestId` / …    | cada Page Object (ver [estrategia](#-estrategia-de-locators--sin-xpathcss))                                                                                  |
+| 5   | **TC1** — Buscar y validar película                     | [`tests/mock/searchMovie.mock.spec.ts`](tests/mock/searchMovie.mock.spec.ts) · [`tests/e2e/searchMovie.e2e.spec.ts`](tests/e2e/searchMovie.e2e.spec.ts)      |
+| 6   | **TC2** — Navegar Top 250 (vía menú)                    | [`tests/mock/top250.mock.spec.ts`](tests/mock/top250.mock.spec.ts) · [`tests/e2e/top250.e2e.spec.ts`](tests/e2e/top250.e2e.spec.ts)                          |
+| 7   | Mocks cuando nada está operativo                        | [`mocks/`](mocks)                                                                                                                                            |
+| 8   | Buenas prácticas / camelCase / SOLID / escalable        | [principios de diseño](#-principios-de-diseño)                                                                                                               |
+| ➕  | Pruebas data-driven + negativas, validaciones profundas | [`tests/mock/`](tests/mock)                                                                                                                                  |
+| ➕  | Accesibilidad (axe-core)                                | [`tests/mock/accessibility.mock.spec.ts`](tests/mock/accessibility.mock.spec.ts)                                                                             |
+| ➕  | Escenarios mutantes que aprenden                        | [`docs/MUTATION-TESTING.md`](docs/MUTATION-TESTING.md)                                                                                                       |
+| ➕  | POCs de servicio de auditoría de seguridad              | [`docs/AUDIT-POC.md`](docs/AUDIT-POC.md)                                                                                                                     |
+| ➕  | Pruebas de API                                          | [`tests/api/movies.api.spec.ts`](tests/api/movies.api.spec.ts)                                                                                               |
+| ➕  | Pruebas de contrato (esquemas zod)                      | [`tests/api/movies.contract.spec.ts`](tests/api/movies.contract.spec.ts) · [`src/contracts/movieApiSchemas.ts`](src/contracts/movieApiSchemas.ts)            |
+| ➕  | Presupuestos de rendimiento                             | [`tests/performance/navigationTiming.performance.spec.ts`](tests/performance/navigationTiming.performance.spec.ts)                                           |
+| ➕  | Regresión visual (opt-in fuera de Linux)                | [`tests/visual/pages.visual.spec.ts`](tests/visual/pages.visual.spec.ts)                                                                                     |
+| ➕  | Tagging de smoke                                        | `@smoke` — [`tests/mock/searchMovie.mock.spec.ts`](tests/mock/searchMovie.mock.spec.ts) · [`tests/mock/top250.mock.spec.ts`](tests/mock/top250.mock.spec.ts) |
 
 ---
 
@@ -91,7 +131,12 @@ suite corre en proyectos que comparten los **mismos Page Objects**:
 - **♿ Chequeos de accesibilidad** — axe-core bloquea violaciones serias/críticas en cada página mock.
 - **Matchers propios** — `toBeValidRating`, `toBeValidReleaseYear` para aserciones expresivas de dominio.
 - **E2E honesto** — las pruebas reales hacen `skip` con motivo claro ante el muro anti-bot, en lugar de fallar.
-- **Listo para CI** — GitHub Actions corre lint + typecheck + suites mock y mutación, y sube reportes.
+- **🔒 POCs de servicio de auditoría** — escáner de exposición web, análisis estático de Android y mutantes que miden el kill rate del propio auditor.
+- **Pruebas de API + contrato** — `request` de Playwright contra un backend mock real en proceso, esquemas validados con zod vía el matcher propio `toMatchSchema`.
+- **📈 Presupuestos de rendimiento** — chequeos de Navigation Timing en cada página mock, con umbrales deliberadamente holgados.
+- **🖼️ Regresión visual** — baselines `toHaveScreenshot` generadas en Linux vía Docker, opt-in en otros sistemas.
+- **🏷️ Tagging de smoke** — `@smoke` marca un happy path por caso obligatorio para un chequeo rápido antes de pushear.
+- **Listo para CI** — GitHub Actions corre lint + typecheck + cada suite determinista (mock, mutación, auditoría, API, contrato, rendimiento, visual) y sube reportes.
 
 ---
 
@@ -155,7 +200,9 @@ civica-playwright-challenge/
 │   ├── config/testConfig.ts        # Config tipada y multi-entorno (TEST_ENV)
 │   ├── fixtures/
 │   │   ├── pageFixtures.ts          # Page Objects como fixtures inyectables (DI)
-│   │   └── mockFixtures.ts          # Agrega el router mock automático
+│   │   ├── mockFixtures.ts          # Agrega el router mock automático
+│   │   └── apiFixtures.ts           # Servidor mock de API (worker-scoped) + request context
+│   ├── contracts/movieApiSchemas.ts # 📐 Esquemas zod para las pruebas de API/contrato
 │   ├── pages/
 │   │   ├── basePage.ts              # Padre abstracto: navegación compartida
 │   │   ├── homePage.ts              # Home + búsqueda global
@@ -169,18 +216,25 @@ civica-playwright-challenge/
 │   │   ├── mutations.ts             # 🧬 Generador de escenarios mutantes
 │   │   ├── mutationInsights.ts      # Bucle de aprendizaje (cargar + priorizar)
 │   │   └── mutationPaths.ts         # Ubicación del ledger
+│   ├── audit/                       # 🔒 POCs del servicio de auditoría — ver docs/AUDIT-POC.md
 │   └── utils/logger.ts              # Único punto de logging
 ├── tests/
 │   ├── mock/                        # Suite determinista (por defecto) + a11y
 │   ├── mutation/                    # 🧬 Escenarios mutantes que aprenden
+│   ├── audit/                       # 🔒 POCs de auditoría (web / móvil / mutantes)
+│   ├── api/                         # Pruebas de API + contrato (sin navegador)
+│   ├── performance/                 # 📈 Presupuestos de Navigation Timing
+│   ├── visual/                      # 🖼️ Baselines toHaveScreenshot (opt-in fuera de Linux)
 │   └── e2e/                         # Suite del sitio real (opt-in)
 ├── mocks/
-│   ├── data/movies.ts               # Catálogo — fuente única de verdad
-│   └── server/                      # Router de interceptación + plantillas HTML
-├── reporters/mutationInsightsReporter.ts   # Escribe el ledger de aprendizaje
+│   ├── data/movies.ts · accountApp.ts · androidApp.ts · movieApi.ts   # Catálogos — fuente única de verdad
+│   └── server/                      # Routers de interceptación + plantillas HTML + apiMockServer.ts
+├── reporters/
+│   ├── mutationInsightsReporter.ts         # Escribe el ledger de mutantes de búsqueda
+│   └── auditMutationInsightsReporter.ts    # 🔒 Escribe el ledger de mutantes de seguridad
 ├── docs/                            # Guías, ADRs, diagramas, capturas
-│   ├── GROWTH.md · MIGRATION.md · MUTATION-TESTING.md
-│   └── adr/0001…0005-*.md
+│   ├── GROWTH.md · MIGRATION.md · MUTATION-TESTING.md · AUDIT-POC.md
+│   └── adr/0001…0006-*.md
 ├── .github/workflows/ci.yml         # Pipeline de CI
 ├── Dockerfile                       # Ejecución con paridad de CI
 ├── eslint.config.js · playwright.config.ts · tsconfig.json
@@ -293,6 +347,32 @@ npm run test:a11y
 
 ---
 
+## 🔒 POCs de auditoría — futuro servicio de seguridad
+
+Un preview de un servicio construido con el mismo enfoque mock-first: escanear
+qué expone un flujo por la red, qué declara un paquete Android, y medir el
+kill rate del propio auditor con mutantes de seguridad — todo offline, todo
+sobre fixtures.
+
+```bash
+npm run test:audit
+```
+
+- **Exposición web** — fugas de PII/secretos (emails, teléfonos, números de
+  tarjeta validados con Luhn, JWTs/API keys), headers CSP/HSTS/X-Content-Type-Options
+  faltantes, cookies sin Secure/HttpOnly/SameSite.
+- **Auditoría estática móvil** — permisos peligrosos, componentes exportados,
+  tráfico en claro, builds debuggables, secretos hardcodeados, desde un
+  fixture de manifest decodificado (ruta documentada hacia un APK real vía `rea`).
+- **Mutantes de seguridad** — inyectan un defecto a la vez sobre una base
+  endurecida y verifican que los escáneres lo detecten; kill rate actual
+  **6/6 (100%)**.
+
+📖 Qué demuestra cada POC, cómo correrlo y sus límites honestos:
+**[docs/AUDIT-POC.md](docs/AUDIT-POC.md)**.
+
+---
+
 ## 🎭 ¿Por qué una capa de mocks?
 
 Correr la suite `e2e` contra el sitio real devuelve el muro anti-bot de IMDb en
@@ -335,6 +415,7 @@ npm install          # instala también Chromium (postinstall)
 
 npm test             # suite mock determinista (siempre verde)
 npm run test:mutation# escenarios mutantes que aprenden
+npm run test:api     # pruebas de API + contrato contra el backend mock
 npm run test:e2e     # IMDb real (opt-in; skip ante el muro anti-bot)
 ```
 
@@ -348,6 +429,13 @@ npm run test:e2e     # IMDb real (opt-in; skip ante el muro anti-bot)
 | `npm run test:mock`                              | Igual, explícito                            |
 | `npm run test:mutation`                          | 🧬 Escenarios mutantes que aprenden         |
 | `npm run test:a11y`                              | Solo accesibilidad (`@a11y`)                |
+| `npm run test:audit`                             | 🔒 POCs del servicio de auditoría           |
+| `npm run test:api`                               | Pruebas de API contra el backend mock       |
+| `npm run test:contract`                          | 📐 Pruebas de contrato (esquemas)           |
+| `npm run test:performance`                       | 📈 Presupuestos de rendimiento              |
+| `npm run test:visual`                            | 🖼️ Regresión visual (baselines Linux)       |
+| `npm run test:visual:update`                     | Regenera las baselines visuales             |
+| `npm run test:smoke`                             | 🏷️ Subconjunto rápido `@smoke`              |
 | `npm run test:e2e`                               | Suite IMDb real (opt-in)                    |
 | `npm run test:all`                               | Todos los proyectos                         |
 | `npm run test:headed` / `test:ui` / `test:debug` | Visible / interactivo / paso a paso         |
@@ -376,6 +464,8 @@ Todo en [`playwright.config.ts`](playwright.config.ts) + [`src/config/testConfig
 - **Reporte HTML** → `playwright-report/` (`npm run report`).
 - **JUnit XML** → `test-results/junit.xml` (dashboards de CI).
 - **Ledger de mutación** → `test-results/mutation-insights.json` (insumo de aprendizaje).
+- **Reportes de auditoría** → `test-results/audit/*.json`+`.html` y `test-results/audit-mutation-insights.json` (ver [AUDIT-POC.md](docs/AUDIT-POC.md)).
+- **Baselines visuales** → `tests/visual/*-snapshots/*-linux.png` (commiteadas); los diffs caen en `test-results/` ante un mismatch.
 - **Ante fallo** → screenshot, video y trace adjuntos automáticamente.
 
 ---
@@ -393,32 +483,41 @@ flowchart LR
   E --> F[Typecheck]
   F --> G[Suite mock + a11y]
   G --> H[Suite mutación]
-  H --> I[Subir reporte + ledger]
+  H --> I[Suite de POCs de auditoría]
+  I --> K[Suite de API]
+  K --> L[Suite de contrato]
+  L --> M[Suite de rendimiento]
+  M --> N[Suite de regresión visual]
+  N --> J[Subir reporte + ledgers]
 ```
 
-CI corre los proyectos deterministas, así el pipeline es rápido y nunca falla por
-las defensas anti-bot de IMDb.
+CI corre cada proyecto determinista, así el pipeline es rápido y nunca falla
+por las defensas anti-bot de IMDb. `e2e` es opt-in y no forma parte de este
+job (ver [Tipos de prueba](#-tipos-de-prueba)).
 
 ---
 
 ## 📈 Crecer y migrar
 
-- **[docs/GROWTH.md](docs/GROWTH.md)** — agregar páginas, navegadores, entornos, Allure, regresión visual, sharding, husky, pruebas de API.
+- **[docs/GROWTH.md](docs/GROWTH.md)** — agregar páginas, navegadores, entornos, Allure, sharding, husky; API/contrato/regresión visual ya están implementadas, ver [Tipos de prueba](#-tipos-de-prueba).
 - **[docs/MIGRATION.md](docs/MIGRATION.md)** — reapuntar a otro sitio/app, correr en Docker, grids cloud (BrowserStack/Sauce), otros CI (GitLab/Azure/Jenkins), actualizar Playwright.
 - **[docs/MUTATION-TESTING.md](docs/MUTATION-TESTING.md)** — extender el motor de cobertura que aprende.
+- **[docs/AUDIT-POC.md](docs/AUDIT-POC.md)** — los POCs del servicio de auditoría de seguridad, y cómo escalarlos a una app real.
 - **[docs/adr/](docs/adr)** — las decisiones detrás del diseño.
 
 ---
 
 ## 🛠️ Stack técnico
 
-| Herramienta                                                      | Rol                                         |
-| ---------------------------------------------------------------- | ------------------------------------------- |
-| [Playwright Test](https://playwright.dev/)                       | Runner, automatización, fixtures, reporters |
-| [TypeScript](https://www.typescriptlang.org/)                    | Tipado estricto                             |
-| [axe-core](https://github.com/dequelabs/axe-core)                | Motor de accesibilidad                      |
-| [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) | Linting + formato                           |
-| [GitHub Actions](https://github.com/features/actions)            | CI                                          |
+| Herramienta                                                      | Rol                                              |
+| ---------------------------------------------------------------- | ------------------------------------------------ |
+| [Playwright Test](https://playwright.dev/)                       | Runner, automatización, fixtures, reporters      |
+| [TypeScript](https://www.typescriptlang.org/)                    | Tipado estricto                                  |
+| [axe-core](https://github.com/dequelabs/axe-core)                | Motor de accesibilidad                           |
+| [zod](https://zod.dev/)                                          | Validación de esquemas (pruebas de contrato)     |
+| [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) | Linting + formato                                |
+| [GitHub Actions](https://github.com/features/actions)            | CI                                               |
+| [Docker](https://www.docker.com/)                                | Ejecución con paridad Linux + baselines visuales |
 
 ---
 
