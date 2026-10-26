@@ -1,4 +1,8 @@
-<p align="right"><strong>English</strong> · <a href="README.es.md">Español</a></p>
+[Leer en español](README.es.md)
+
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="civica-playwright-challenge: Playwright + TypeScript framework for IMDb flows with one set of Page Objects, a deterministic mock, mutants and audit POCs" width="100%">
+</p>
 
 <div align="center">
 
@@ -10,7 +14,7 @@
 [![Playwright](https://img.shields.io/badge/Playwright-1.63-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-55DFBD?style=flat-square&labelColor=071B2B)](LICENSE)
 
 </div>
 
@@ -19,6 +23,7 @@
 ## 📑 Table of contents
 
 - [Overview](#-overview)
+- [How it works](#-how-it-works)
 - [Test types](#-test-types)
 - [Requirements traceability](#-requirements-traceability)
 - [Highlights](#-highlights)
@@ -66,6 +71,22 @@ runs in projects that share the **exact same Page Objects**:
 | **`e2e`**         | Live `imdb.com`                                  | ⚠️ Best-effort — skips honestly behind the bot wall | Opt-in exploration                          |
 
 > **76 tests — 74 passing, 2 honestly skipped** (live E2E behind the anti-bot wall). See [Test types](#-test-types) for the full catalog.
+
+---
+
+## 🔭 How it works
+
+<p align="center">
+  <img src="docs/assets/how-it-works.svg" alt="Specs grouped by Playwright project go through fixtures that inject the Page Objects; the same Page Objects talk to the in-process IMDb replica, the mock API server or the live site, which skips behind the bot wall; reporters write the HTML and JUnit reports and the mutation ledger that re-orders the next run; CI runs lint, typecheck and every deterministic suite" width="100%">
+</p>
+
+Specs are grouped into Playwright projects. Fixtures inject the Page Objects and, for the mock-backed suites, auto-install the IMDb mock router before each test. The same Page Objects then talk to the offline IMDb replica, the in-process API server, or the live site, where the E2E tests skip with a documented reason when the bot wall shows up. Reporters write the HTML and JUnit reports plus the mutation ledger that re-orders the next run's mutants.
+
+<p align="center">
+  <img src="docs/assets/how-it-works.gif" alt="Animation: the flow lights up while the real CI log of run 38665514760 is replayed suite by suite, from 19 mock tests to the visual suite, with the security mutant kill rate of 6/6" width="960">
+</p>
+
+The animation replays the real log of CI run [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) on `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contract 6, performance 4 and visual 4, all passed (also as [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` draws each frame from `?t=<seconds>` and `docs/scenes/export.sh` rebuilds the GIF and MP4 with headless Chrome and ffmpeg.
 
 ---
 

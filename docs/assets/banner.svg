@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320">
+<defs>
+<pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#55DFBD" stroke-opacity=".06" stroke-width="1"/></pattern>
+<clipPath id="c"><rect width="1280" height="320" rx="20"/></clipPath>
+<marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#55DFBD"/></marker>
+<marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FB8176"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFC56E"/></marker>
+</defs>
+<g clip-path="url(#c)"><rect width="1280" height="320" fill="#071B2B"/><rect width="1280" height="320" fill="url(#g)"/><rect x="0" y="0" width="8" height="320" fill="#55DFBD"/></g>
+<text x="64" y="76" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" fill="#8FA6B0" text-anchor="start" letter-spacing="2.5" xml:space="preserve">PLAYWRIGHT · TYPESCRIPT · PAGE OBJECT MODEL</text>
+<text x="64" y="136" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="52" font-weight="bold" fill="#F4F7F5" text-anchor="start" xml:space="preserve">civica-playwright-challenge</text>
+<text x="64" y="186" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">Playwright + TypeScript framework for IMDb flows: one set of</text>
+<text x="64" y="216" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">Page Objects, a deterministic mock, mutants and audit POCs.</text>
+<text x="64" y="280" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" fill="#55DFBD" text-anchor="start" xml:space="preserve">Cristian Guerra · QA · Medellín</text>
+<rect x="780" y="162" width="436" height="144" rx="14" fill="#0D2638" stroke="#214456"/>
+<text x="802" y="196" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" fill="#8FA6B0" text-anchor="start" xml:space="preserve">$ npm run test:mock</text>
+<text x="802" y="223" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#F4F7F5"> 19 passed (9.0s)</tspan></text>
+<text x="802" y="250" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" fill="#8FA6B0" text-anchor="start" xml:space="preserve">$ npm run test:audit</text>
+<text x="802" y="277" font-family="Menlo,Consolas,monospace" font-size="15" font-weight="normal" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#F4F7F5"> Security mutant kill rate: 6/6 (100%)</tspan></text>
+</svg>

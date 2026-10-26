@@ -1,4 +1,8 @@
-<p align="right"><a href="README.md">English</a> · <strong>Español</strong></p>
+[Read in English](README.md)
+
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="civica-playwright-challenge: framework de Playwright + TypeScript para flujos de IMDb con un solo set de Page Objects, un mock determinista, mutantes y POCs de auditoría" width="100%">
+</p>
 
 <div align="center">
 
@@ -10,7 +14,7 @@
 [![Playwright](https://img.shields.io/badge/Playwright-1.63-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-55DFBD?style=flat-square&labelColor=071B2B)](LICENSE)
 
 </div>
 
@@ -19,6 +23,7 @@
 ## 📑 Tabla de contenido
 
 - [Visión general](#-visión-general)
+- [Cómo funciona](#-cómo-funciona)
 - [Tipos de prueba](#-tipos-de-prueba)
 - [Trazabilidad de requisitos](#-trazabilidad-de-requisitos)
 - [Puntos destacados](#-puntos-destacados)
@@ -66,6 +71,22 @@ suite corre en proyectos que comparten los **mismos Page Objects**:
 | **`e2e`**         | `imdb.com` real                                         | ⚠️ Best-effort — skip honesto ante el muro anti-bot      | Exploración opt-in                              |
 
 > **76 pruebas — 74 pasan, 2 se saltan honestamente** (E2E real tras el muro anti-bot). Ver [Tipos de prueba](#-tipos-de-prueba) para el catálogo completo.
+
+---
+
+## 🔭 Cómo funciona
+
+<p align="center">
+  <img src="docs/assets/how-it-works.svg" alt="Los specs, agrupados por proyecto de Playwright, pasan por fixtures que inyectan los Page Objects; los mismos Page Objects hablan con la réplica de IMDb en proceso, con el servidor mock de API o con el sitio real, que hace skip ante el muro anti-bot; los reporters escriben los reportes HTML y JUnit y el ledger de mutantes que reordena la siguiente ejecución; CI corre lint, typecheck y todas las suites deterministas" width="100%">
+</p>
+
+Los specs están agrupados en proyectos de Playwright. Los fixtures inyectan los Page Objects y, en las suites que usan el mock, instalan solos el router mock de IMDb antes de cada prueba. Después, los mismos Page Objects hablan con la réplica offline de IMDb, con el servidor de API en proceso o con el sitio real, donde las pruebas E2E hacen skip con una razón documentada cuando aparece el muro anti-bot. Los reporters escriben los reportes HTML y JUnit y el ledger de mutantes que reordena los mutantes de la siguiente ejecución.
+
+<p align="center">
+  <img src="docs/assets/how-it-works.gif" alt="Animación: el flujo se ilumina mientras se reproduce, suite por suite, el log real de CI del run 38665514760, desde las 19 pruebas mock hasta la suite visual, con la tasa de muerte de mutantes de seguridad de 6/6" width="960">
+</p>
+
+La animación reproduce el log real del run de CI [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) en `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contrato 6, performance 4 y visual 4, todas pasaron (también en [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` dibuja cada cuadro a partir de `?t=<segundos>` y `docs/scenes/export.sh` regenera el GIF y el MP4 con Chrome headless y ffmpeg.
 
 ---
 
@@ -291,6 +312,20 @@ métodos que revelan intención (`searchFor`, `openFirstResult`, `openMovieAtRan
 
 ### TC1 · Buscar y validar película
 
+```mermaid
+sequenceDiagram
+  actor U as Test
+  participant H as HomePage
+  participant R as SearchResultsPage
+  participant M as MovieDetailsPage
+  U->>H: open()
+  U->>H: searchFor("Inception")
+  H-->>R: navega a resultados
+  U->>R: openFirstResult("Inception")
+  R-->>M: devuelve la ficha
+  U->>M: expect(title).toHaveText("Inception")
+```
+
 Home → buscar "Inception" → abrir el resultado → validar el título en la ficha.
 Ampliado con cobertura **data-driven** sobre todo el catálogo, variante
 **insensible a mayúsculas**, ruta **negativa** ("sin resultados") y
@@ -298,6 +333,22 @@ Ampliado con cobertura **data-driven** sobre todo el catálogo, variante
 URL canónica).
 
 ### TC2 · Navegar Top 250 (vía menú)
+
+```mermaid
+sequenceDiagram
+  actor U as Test
+  participant H as HomePage
+  participant Nav as HeaderNav
+  participant C as Top250Page
+  participant M as MovieDetailsPage
+  U->>H: open()
+  U->>Nav: header.goToTop250()
+  Nav-->>C: abre el chart desde el menú
+  U->>C: expect(chartHeading).toBeVisible()
+  U->>C: openMovieAtRank(1)
+  C-->>M: devuelve la ficha
+  U->>M: expect(title / rating / releaseYear).toBeVisible()
+```
 
 Home → menú → Top 250 → abrir el #1 → validar **título + rating + año**. Más una
 prueba de **integridad del ranking**: el chart está poblado y correctamente
@@ -417,6 +468,17 @@ npm test             # suite mock determinista (siempre verde)
 npm run test:mutation# escenarios mutantes que aprenden
 npm run test:api     # pruebas de API + contrato contra el backend mock
 npm run test:e2e     # IMDb real (opt-in; skip ante el muro anti-bot)
+```
+
+Salida esperada por defecto:
+
+```text
+Running 19 tests using N workers
+  ✓  TC1 · Search and validate movie …
+  ✓  TC2 · Navigate Top 250 movies …
+  ✓  Movie details · deep validations …
+  ✓  Accessibility …
+  19 passed
 ```
 
 ---

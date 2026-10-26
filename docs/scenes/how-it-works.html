@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=block" rel="stylesheet">
+<style>
+:root{--navy:#071B2B;--deep:#0D2638;--panel:#123448;--grid:#214456;--mint:#55DFBD;--gold:#FFC56E;--coral:#FB8176;--white:#F4F7F5;--muted:#ABC0C8;--muted2:#8FA6B0}
+html,body{margin:0;width:960px;height:540px;overflow:hidden;background:var(--navy)}
+#s{position:relative;width:960px;height:540px;background:var(--navy);background-image:linear-gradient(rgba(85,223,189,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(85,223,189,.06) 1px,transparent 1px);background-size:40px 40px;font-family:'Space Grotesk',sans-serif;color:var(--white)}
+.bar{position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--mint)}
+#c{position:absolute;inset:0}
+.kick{position:absolute;left:36px;top:20px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:2.5px;color:var(--muted2)}
+.ttl{position:absolute;left:36px;top:38px;font:24px 'Archivo Black',sans-serif;letter-spacing:.2px}
+.nodes{position:absolute;left:36px;top:92px;width:384px}
+.node{box-sizing:border-box;background:var(--deep);border:1.5px solid var(--grid);border-radius:10px;padding:7px 12px;position:relative}
+.node .l{font-weight:700;font-size:15px;line-height:19px}
+.node .s{font:11.5px/16px 'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.node.on{border-color:var(--mint);box-shadow:0 0 0 3px rgba(85,223,189,.16)}
+.node .st{position:absolute;right:12px;top:8px;font:500 11.5px 'JetBrains Mono',monospace;color:var(--muted)}
+.st b{font-weight:700}
+.cn{position:relative;height:14px}
+.cn i{position:absolute;left:28px;top:0;width:2px;height:8px;background:var(--grid)}
+.cn em{position:absolute;left:24px;top:7px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--grid)}
+.cn.on i{background:var(--mint)}.cn.on em{border-top-color:var(--mint)}
+.term{position:absolute;left:440px;top:92px;width:486px;background:var(--deep);border:1.5px solid var(--grid);border-radius:12px;overflow:hidden}
+.th{height:28px;border-bottom:1px solid var(--grid);display:flex;align-items:center;padding:0 12px;gap:6px;font:11px 'JetBrains Mono',monospace;color:var(--muted2)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--grid)}
+.th span{margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{padding:9px 14px;font:12px/18px 'JetBrains Mono',monospace;white-space:pre}
+.ln{overflow:hidden;text-overflow:ellipsis;color:var(--white)}
+.k-cmd{color:var(--white)}.k-cmd:before{content:'$ ';color:var(--muted2)}
+.k-dim{color:var(--muted2)}.k-head{color:var(--muted);font-weight:700}
+.y{font-weight:700}.y-ok{color:var(--mint)}.y-warn{color:var(--gold)}.y-fail{color:var(--coral)}
+.k-sum{color:var(--mint);font-weight:700}
+.cur{display:inline-block;width:7px;height:13px;background:var(--mint);vertical-align:-2px}
+.chips{position:absolute;left:36px;right:34px;top:470px;display:flex;gap:8px}
+.chip{flex:1;box-sizing:border-box;height:34px;background:var(--panel);border:1.2px solid var(--grid);border-radius:8px;font:11px/14px 'JetBrains Mono',monospace;color:var(--muted);text-align:center;padding-top:2px;white-space:nowrap;overflow:hidden}
+.chip .a{color:var(--white)}
+.chip.on{border-color:var(--mint)}
+.chip.warn{border-color:var(--gold)}
+.foot{position:absolute;left:36px;bottom:12px;font:11px 'JetBrains Mono',monospace;color:var(--muted2)}
+.sig{position:absolute;right:34px;bottom:12px;font:12px 'JetBrains Mono',monospace;color:var(--mint)}
+</style>
+</head>
+<body>
+<div id="s"><div class="bar"></div><div id="c"></div></div>
+<script>
+const S = {
+ "kicker": "CIVICA-PLAYWRIGHT-CHALLENGE · HOW IT WORKS",
+ "title": "Same Page Objects, every suite",
+ "duration": 14,
+ "termTitle": "GitHub Actions · Lint + Typecheck + full offline test catalog",
+ "nodes": [
+  {
+   "l": "Specs by project",
+   "s": "mock · mutation · audit · api · contract · perf · visual"
+  },
+  {
+   "l": "Fixtures (DI)",
+   "s": "pageFixtures · mockFixtures · apiFixtures"
+  },
+  {
+   "l": "Page Objects",
+   "s": "Home · SearchResults · MovieDetails · Top250"
+  },
+  {
+   "l": "Mock backends",
+   "s": "IMDb replica · API server · audit fixtures"
+  },
+  {
+   "l": "Mutant engine",
+   "s": "equivalent · boundary · negative → ledger"
+  },
+  {
+   "l": "Reports",
+   "s": "list · html · junit · insight ledgers"
+  }
+ ],
+ "steps": [
+  [
+   0.3,
+   0
+  ],
+  [
+   1.0,
+   1
+  ],
+  [
+   1.15,
+   2
+  ],
+  [
+   1.3,
+   3
+  ],
+  [
+   3.3,
+   4
+  ],
+  [
+   5.0,
+   3
+  ],
+  [
+   10.9,
+   5
+  ]
+ ],
+ "marks": [
+  [
+   2.2,
+   2,
+   "ok",
+   "TC1 + TC2"
+  ],
+  [
+   4.5,
+   4,
+   "ok",
+   "21 mutants"
+  ],
+  [
+   6.2,
+   3,
+   "ok",
+   "kill rate 6/6"
+  ],
+  [
+   10.9,
+   0,
+   "ok",
+   "74 passed"
+  ],
+  [
+   11.3,
+   5,
+   "ok",
+   "uploaded"
+  ]
+ ],
+ "lines": [
+  [
+   0.3,
+   "cmd",
+   "npm run test:mock"
+  ],
+  [
+   1.0,
+   "dim",
+   "Running 19 tests using 1 worker"
+  ],
+  [
+   1.3,
+   "ok",
+   "[mock] TC1 · Search and validate movie › searches for a title and validates it on the details page @smoke"
+  ],
+  [
+   1.6,
+   "ok",
+   "[mock] TC2 · Navigate Top 250 movies › opens the #1 chart movie and validates title, rating and year @smoke"
+  ],
+  [
+   1.9,
+   "ok",
+   "[mock] Accessibility › movie details has no serious/critical a11y violations"
+  ],
+  [
+   2.2,
+   "sum",
+   "19 passed (9.0s)"
+  ],
+  [
+   2.7,
+   "cmd",
+   "npm run test:mutation"
+  ],
+  [
+   3.3,
+   "dim",
+   "ℹ Generated 7 mutants for \"Inception\""
+  ],
+  [
+   3.6,
+   "ok",
+   "[mutation] inception--upper [equivalent] → found"
+  ],
+  [
+   3.9,
+   "ok",
+   "[mutation] inception--prefix [boundary] → found"
+  ],
+  [
+   4.2,
+   "ok",
+   "[mutation] inception--gibberish [negative] → notFound"
+  ],
+  [
+   4.5,
+   "sum",
+   "21 passed (8.2s)"
+  ],
+  [
+   5.0,
+   "cmd",
+   "npm run test:audit"
+  ],
+  [
+   5.6,
+   "ok",
+   "[audit] security-mutant--pii-leak-card-number [pii-leak]"
+  ],
+  [
+   5.9,
+   "ok",
+   "[audit] security-mutant--insecure-cookie-flags [insecure-cookie]"
+  ],
+  [
+   6.2,
+   "dim",
+   "ℹ Security mutant kill rate: 6/6 (100%)"
+  ],
+  [
+   6.5,
+   "sum",
+   "9 passed (1.6s)"
+  ],
+  [
+   7.0,
+   "cmd",
+   "npm run test:api"
+  ],
+  [
+   7.6,
+   "sum",
+   "11 passed (1.2s)"
+  ],
+  [
+   8.0,
+   "cmd",
+   "npm run test:contract"
+  ],
+  [
+   8.6,
+   "sum",
+   "6 passed (922ms)"
+  ],
+  [
+   9.0,
+   "cmd",
+   "npm run test:performance"
+  ],
+  [
+   9.7,
+   "sum",
+   "4 passed (2.3s)"
+  ],
+  [
+   10.1,
+   "cmd",
+   "npm run test:visual"
+  ],
+  [
+   10.7,
+   "sum",
+   "4 passed (2.1s)"
+  ]
+ ],
+ "chips": [
+  {
+   "l": "mock",
+   "d": "19",
+   "t": 2.2
+  },
+  {
+   "l": "mutation",
+   "d": "21",
+   "t": 4.5
+  },
+  {
+   "l": "audit",
+   "d": "9",
+   "t": 6.5
+  },
+  {
+   "l": "api",
+   "d": "11",
+   "t": 7.6
+  },
+  {
+   "l": "contract",
+   "d": "6",
+   "t": 8.6
+  },
+  {
+   "l": "perf",
+   "d": "4",
+   "t": 9.7
+  },
+  {
+   "l": "visual",
+   "d": "4",
+   "t": 10.7
+  }
+ ],
+ "foot": "Replay of the real CI log · run 38665514760 · 2026-10-15"
+};
+const t = parseFloat(new URLSearchParams(location.search).get('t') || '0');
+const SYM = {ok: '✓', warn: '!', fail: '✗'};
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const past = a => a.filter(x => x[0] <= t);
+const hasChips = !!(S.chips && S.chips.length);
+const areaH = hasChips ? 362 : 404;
+const n = S.nodes.length;
+const nh = (areaH - 14 * (n - 1)) / n;
+const steps = past(S.steps || []);
+const active = steps.length ? steps[steps.length - 1][1] : -1;
+const visited = new Set(steps.map(x => x[1]));
+const marks = {};
+past(S.marks || []).forEach(m => marks[m[1]] = m);
+let h = `<div class="kick">${esc(S.kicker)}</div><div class="ttl">${esc(S.title)}</div><div class="nodes">`;
+S.nodes.forEach((nd, i) => {
+  const m = marks[i];
+  const st = m ? `<div class="st"><b class="y-${m[2]}">${SYM[m[2]]}</b> ${esc(m[3])}</div>` : '';
+  h += `<div class="node${i === active ? ' on' : ''}" style="height:${nh}px">${st}<div class="l">${esc(nd.l)}</div><div class="s">${esc(nd.s)}</div></div>`;
+  if (i < n - 1) h += `<div class="cn${visited.has(i + 1) ? ' on' : ''}"><i></i><em></em></div>`;
+});
+h += `</div>`;
+const lines = past(S.lines);
+const maxL = Math.floor((areaH - 28 - 18) / 18);
+const shown = lines.slice(-maxL);
+let tb = '';
+shown.forEach((l, idx) => {
+  const [t0, k, txt] = l;
+  if (k === 'cmd') {
+    const c = Math.min(txt.length, Math.floor((t - t0) * 34));
+    const typing = c < txt.length || idx === shown.length - 1;
+    tb += `<div class="ln k-cmd">${esc(txt.slice(0, c))}${typing && Math.floor(t * 3) % 2 === 0 ? '<span class="cur"></span>' : ''}</div>`;
+  } else if (SYM[k]) {
+    tb += `<div class="ln"><span class="y y-${k}">${SYM[k]}</span> ${esc(txt)}</div>`;
+  } else if (k === 'sum') {
+    tb += `<div class="ln k-sum">${esc(txt)}</div>`;
+  } else {
+    tb += `<div class="ln k-${k}">${esc(txt) || ' '}</div>`;
+  }
+});
+h += `<div class="term" style="height:${areaH}px"><div class="th"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>${esc(S.termTitle)}</span></div><div class="tb">${tb}</div></div>`;
+if (hasChips) {
+  h += `<div class="chips">`;
+  S.chips.forEach(c => {
+    const on = c.t <= t;
+    const k = c.k || 'ok';
+    h += `<div class="chip${on ? (k === 'warn' ? ' warn' : ' on') : ''}"><div class="a">${esc(c.l)}</div><div>${on ? `<b class="y-${k}">${SYM[k]}</b> ${esc(c.d)}` : '·'}</div></div>`;
+  });
+  h += `</div>`;
+}
+h += `<div class="foot">${esc(S.foot)}</div><div class="sig">Cristian Guerra · QA · Medellín</div>`;
+const c = document.getElementById('c');
+c.innerHTML = h;
+c.style.opacity = Math.max(0, Math.min(1, t / 0.35, (S.duration - t) / 0.4));
+</script>
+</body>
+</html>
