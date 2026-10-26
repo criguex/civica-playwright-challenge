@@ -20,7 +20,7 @@ those by hand is tedious and always incomplete. A mutation engine:
 - **widens coverage automatically** — one golden flow → N self-checking scenarios;
 - **stays honest** — each mutant declares its expected outcome class, so it is a
   real assertion, not just a smoke run;
-- **gets smarter over time** — outcomes feed a ledger that prioritizes the next run.
+- **learns the order** — outcomes feed a ledger that decides which mutants run first next time.
 
 ---
 
@@ -43,7 +43,7 @@ instantly multiplies coverage across every seed.
 ```mermaid
 flowchart LR
   G["🎯 Golden flow<br/>(search &amp; open)"] --> M["🧬 Generate mutants<br/>equivalent / boundary / negative"]
-  L["📒 Insights ledger<br/>test-results/mutation-insights.json"] --> P["⚖️ Prioritize<br/>failing → new → passing"]
+  L["📒 Insights ledger<br/>ledger/mutation-insights.json"] --> P["⚖️ Prioritize<br/>failing → new → passing"]
   M --> P
   P --> R["▶️ Run scenarios"]
   R --> Rep["📝 Mutation reporter"]
@@ -53,16 +53,40 @@ flowchart LR
 
 1. **Generate** — `generateSearchMutants()` expands each seed into the full set.
 2. **Prioritize** — `prioritize()` reads the ledger and re-orders so that
-   _previously-failing_ mutants run first, then _never-seen_ ones (new coverage),
-   then _consistently-passing_ ones. Sorting is stable → the run stays deterministic.
+   mutants that _failed in their last 5 recorded runs_ go first, then _never-seen_
+   ones (new coverage), then the rest. Sorting is stable → the run stays
+   deterministic. Order is the only thing it changes: never a verdict.
 3. **Run** — scenarios execute against the deterministic mock.
 4. **Record** — the [`mutationInsightsReporter`](../reporters/mutationInsightsReporter.ts)
-   writes each `@mutant` outcome (cumulative `runs`/`failures`) back to the ledger.
+   writes each `@mutant` outcome back to the ledger: `runs` (every run ever),
+   `history` (last 5 statuses), `failures` and `timeouts` (counted inside those 5).
 5. **Repeat** — the next run learns from this one.
 
-The ledger is a build artifact (git-ignored). On a fresh clone it is empty and
-mutants run in declared order; after the first run it exists locally/as a CI
-artifact and steers subsequent prioritization.
+The ledger lives in `ledger/` (git-ignored), **not** in `test-results/`:
+Playwright empties its output folder at the start of every run, which used to
+wipe the ledger so `runs` never got past 1. A ledger left at the old
+`test-results/` path is read once and carried over. On a fresh clone it is
+empty and mutants run in declared order. In CI, the workflow downloads the
+`mutation-insights` artifact of the latest completed `main` run before the
+mutants and uploads the updated one at the end; with no previous artifact it
+starts fresh.
+
+**Forgetting.** `failures` counts only `failed` results among the mutant's last
+5 runs (`HISTORY_WINDOW` in `src/support/mutationInsights.ts`), so one old
+failure stops pushing a mutant to the front after 5 more runs. A sliding window
+was picked over decay weights because it is easy to read straight from the
+JSON.
+
+**Timeouts.** A `timedOut` result goes to `timeouts`, not `failures`, and does
+not move a mutant up: it usually says more about the machine than about the
+mutant. `interrupted` counts as neither.
+
+**Corrupt ledger.** Loading is fail-open but not silent: the run prints a `⚠`
+warning, adds a `ledger-warning` annotation to each mutant in the HTML report,
+runs in declared order, and keeps the unreadable file as
+`ledger/mutation-insights.json.corrupt` before writing a fresh ledger. The
+unit tests in `tests/unit/mutationInsights.unit.spec.ts` cover ordering,
+forgetting, timeouts and the corrupt file.
 
 ---
 
@@ -70,7 +94,7 @@ artifact and steers subsequent prioritization.
 
 ```bash
 npm run test:mutation        # generate → prioritize → run → record
-cat test-results/mutation-insights.json   # inspect what it learned
+cat ledger/mutation-insights.json   # inspect what it learned
 ```
 
 ---
@@ -83,11 +107,14 @@ This engine is deliberately small but designed to grow:
   pagination), not just search.
 - **Richer mutators** — accents/diacritics, emoji, RTL text, very long inputs,
   injection-style payloads (as negative/robustness mutants).
-- **Smarter learning** — weight by _recency_ and _flakiness rate_, auto-quarantine
-  chronically-flaky mutants, and surface a "most valuable mutants" report.
+- **Smarter learning** — weight by _flakiness rate_ (the 5-run window already
+  covers recency), auto-quarantine chronically-flaky mutants, and surface a
+  "most valuable mutants" report.
 - **Failure-driven generation** — when a mutant catches a real bug, auto-derive
   neighbouring mutants around it (the failure becomes a new seed).
-- **Metamorphic relations** — assert invariants across mutants (e.g. results for
-  `X` ⊇ results for a prefix of `X`).
+- **Metamorphic relations** — assert invariants across mutants. With the mock's
+  case-insensitive substring search, results for a prefix of `X` ⊇ results for
+  `X` (searching `The` returns 4 titles, `The Dark Knight` returns 1), not the
+  other way round.
 
 See also: [GROWTH.md](GROWTH.md) · [ADR-0005](adr/0005-mutant-scenarios.md).

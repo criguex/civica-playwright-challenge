@@ -29,6 +29,12 @@ export interface SecurityMutant {
   readonly kind: SecurityMutantKind;
   readonly description: string;
   readonly detect: () => boolean;
+  /**
+   * Set when the mutant is equivalent: it plants nothing the auditor could
+   * observe, so it is excluded from the kill rate. `holds()` re-checks that
+   * claim on every run (the auditor's findings equal the baseline's).
+   */
+  readonly equivalent?: { readonly reason: string; readonly holds: () => boolean };
 }
 
 const BASELINE_EXCHANGE: CapturedExchange = {
@@ -66,8 +72,10 @@ function withoutHeader(
   return Object.fromEntries(Object.entries(headers).filter(([key]) => key !== header));
 }
 
-function missingHeaderMutant(header: string): SecurityMutant {
+function missingHeaderMutant(header: string, equivalentReason?: string): SecurityMutant {
   const mutatedHeaders = withoutHeader(BASELINE_EXCHANGE.responseHeaders, header);
+  const findingsOf = (headers: Readonly<Record<string, string>>): string =>
+    JSON.stringify(checkSecurityHeaders(headers, BASELINE_EXCHANGE.url));
 
   return {
     id: `security-mutant--missing-header-${header}`,
@@ -77,6 +85,12 @@ function missingHeaderMutant(header: string): SecurityMutant {
       checkSecurityHeaders(mutatedHeaders, BASELINE_EXCHANGE.url).some((finding) =>
         finding.id.includes(header),
       ),
+    equivalent: equivalentReason
+      ? {
+          reason: equivalentReason,
+          holds: () => findingsOf(mutatedHeaders) === findingsOf(BASELINE_EXCHANGE.responseHeaders),
+        }
+      : undefined,
   };
 }
 
@@ -116,6 +130,11 @@ export function generateSecurityMutants(): SecurityMutant[] {
     missingHeaderMutant('content-security-policy'),
     missingHeaderMutant('strict-transport-security'),
     missingHeaderMutant('x-content-type-options'),
+    missingHeaderMutant(
+      'x-frame-options',
+      'The hardened baseline never sends X-Frame-Options: its CSP already carries ' +
+        "frame-ancestors 'none', so stripping the header changes nothing the auditor can observe.",
+    ),
     insecureCookieMutant(),
     dangerousPermissionMutant(),
   ];

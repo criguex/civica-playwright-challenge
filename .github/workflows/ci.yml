@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   test:
     name: Lint + Typecheck + full offline test catalog
@@ -35,6 +39,21 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Run ledger unit tests
+        run: npm run test:unit
+
+      - name: Restore mutation ledgers from the latest main run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for run_id in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch main \
+              --status completed --limit 5 --json databaseId --jq '.[].databaseId'); do
+            if gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name mutation-insights --dir ledger; then
+              echo "Restored ledgers from run $run_id"; ls -l ledger; exit 0
+            fi
+          done
+          echo "No previous ledger artifact found; starting a fresh ledger"
+
       - name: Run mock suite (includes accessibility)
         run: npm run test:mock
 
@@ -43,6 +62,15 @@ jobs:
 
       - name: Run audit POCs suite
         run: npm run test:audit
+
+      - name: Upload audit reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-reports
+          path: test-results/audit/
+          retention-days: 14
+          if-no-files-found: ignore
 
       - name: Run API suite
         run: npm run test:api
@@ -64,22 +92,11 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-      - name: Upload mutation insights ledger
+      - name: Upload mutation insights ledgers
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: mutation-insights
-          path: test-results/mutation-insights.json
-          retention-days: 14
-          if-no-files-found: ignore
-
-      - name: Upload audit reports
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: audit-reports
-          path: |
-            test-results/audit/
-            test-results/audit-mutation-insights.json
-          retention-days: 14
+          path: ledger/
+          retention-days: 90
           if-no-files-found: ignore

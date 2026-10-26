@@ -91,6 +91,7 @@ runs in projects that share the **exact same Page Objects**:
 | Project           | Backend                                          | Reliability                                         | When                                        |
 | ----------------- | ------------------------------------------------ | --------------------------------------------------- | ------------------------------------------- |
 | **`mock`**        | In-process IMDb replica (request interception)   | ✅ Deterministic, offline, always green             | Default · CI · demos                        |
+| **`unit`**        | None — pure functions                            | ✅ Deterministic, offline, no browser               | Learning-ledger logic                       |
 | **`mutation`**    | Mock + generated mutant scenarios                | ✅ Deterministic, self-learning                     | Coverage expansion                          |
 | **`audit`**       | Security-audit-service POCs (web/mobile/mutants) | ✅ Deterministic, offline                           | Service preview — [docs](docs/AUDIT-POC.md) |
 | **`api`**         | In-process mock backend (real socket)            | ✅ Deterministic, offline                           | API + contract tests                        |
@@ -98,7 +99,7 @@ runs in projects that share the **exact same Page Objects**:
 | **`visual`**      | Mock + Linux-baseline screenshots                | ✅ Deterministic on Linux (CI) — opt-in elsewhere   | Pixel-regression guard                      |
 | **`e2e`**         | Live `imdb.com`                                  | ⚠️ Best-effort — skips honestly behind the bot wall | Opt-in exploration                          |
 
-> **76 tests — 74 passing, 2 honestly skipped** (live E2E behind the anti-bot wall). See [Test types](#-test-types) for the full catalog.
+> **84 tests — 82 passing, 2 honestly skipped** (live E2E behind the anti-bot wall). See [Test types](#-test-types) for the full catalog.
 
 ---
 
@@ -114,7 +115,7 @@ Specs are grouped into Playwright projects. Fixtures inject the Page Objects and
   <img src="docs/assets/how-it-works.gif" alt="Animation: the flow lights up while the real CI log of run 38665514760 is replayed suite by suite, from 19 mock tests to the visual suite, with the security mutant kill rate of 6/6" width="960">
 </p>
 
-The animation replays the real log of CI run [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) on `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contract 6, performance 4 and visual 4, all passed (also as [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` draws each frame from `?t=<seconds>` and `docs/scenes/export.sh` rebuilds the GIF and MP4 with headless Chrome and ffmpeg. The kids' animation works the same way with `docs/scenes/explained.html` (`?t=<seconds>&lang=en|es`) and `docs/scenes/export-explained.sh`.
+The animation replays the real log of CI run [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) on `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contract 6, performance 4 and visual 4, all passed (also as [MP4](docs/assets/how-it-works.mp4)). That run predates the `unit` project and the equivalent audit mutant, so its counts are lower than today's. `docs/scenes/how-it-works.html` draws each frame from `?t=<seconds>` and `docs/scenes/export.sh` rebuilds the GIF and MP4 with headless Chrome and ffmpeg. The kids' animation works the same way with `docs/scenes/explained.html` (`?t=<seconds>&lang=en|es`) and `docs/scenes/export-explained.sh`.
 
 ---
 
@@ -125,6 +126,7 @@ The animation replays the real log of CI run [38665514760](https://github.com/cr
 | **UI (mock, POM)**      | TC1/TC2 flows, data-driven catalogue, case-insensitivity, no-results path  | `npm run test:mock`        | ✅ Yes                                                   |
 | **Accessibility**       | axe-core `serious`/`critical` WCAG 2 A/AA violations on every mock page    | `npm run test:a11y`        | ✅ Yes (part of `mock`)                                  |
 | **Smoke**               | Fast `@smoke` subset — one happy path per required test case (TC1 + TC2)   | `npm run test:smoke`       | ➖ Not separate (covered by `mock`)                      |
+| **Unit (ledger)**       | Mutant ordering, forgetting window, timeouts, corrupt-ledger fallback      | `npm run test:unit`        | ✅ Yes                                                   |
 | **Mutation (learning)** | Self-checking mutant scenarios, prioritized from a learning ledger         | `npm run test:mutation`    | ✅ Yes                                                   |
 | **Audit POCs**          | Web PII/secret/header exposure, Android static analysis, auditor kill rate | `npm run test:audit`       | ✅ Yes — see [AUDIT-POC.md](docs/AUDIT-POC.md)           |
 | **API**                 | Status codes, response shape, headers against a real mock backend          | `npm run test:api`         | ✅ Yes                                                   |
@@ -262,7 +264,7 @@ civica-playwright-challenge/
 │   │   ├── customMatchers.ts        # toBeValidRating / toBeValidReleaseYear
 │   │   ├── botWall.ts               # Honest anti-bot detection for e2e
 │   │   ├── mutations.ts             # 🧬 Mutant-scenario generator
-│   │   ├── mutationInsights.ts      # Learning loop (load + prioritize)
+│   │   ├── mutationInsights.ts      # Learning loop (load + record + prioritize)
 │   │   └── mutationPaths.ts         # Ledger location
 │   ├── audit/                       # 🔒 Audit-service POCs — see docs/AUDIT-POC.md
 │   │   ├── webExposureScanner.ts · exposureDetectors.ts · secretPatterns.ts
@@ -277,6 +279,8 @@ civica-playwright-challenge/
 │   │   ├── top250.mock.spec.ts
 │   │   ├── movieDetails.mock.spec.ts
 │   │   └── accessibility.mock.spec.ts
+│   ├── unit/                        # Ledger logic (no browser)
+│   │   └── mutationInsights.unit.spec.ts
 │   ├── mutation/                    # 🧬 Learning mutant scenarios
 │   │   └── searchMutants.mutation.spec.ts
 │   ├── audit/                       # 🔒 Audit POCs (web / mobile / mutants)
@@ -424,8 +428,40 @@ flowchart LR
 
 ```bash
 npm run test:mutation
-cat test-results/mutation-insights.json   # what it learned
+cat ledger/mutation-insights.json   # what it learned
 ```
+
+### What it learns, and what it doesn't
+
+- **Where the memory lives.** `ledger/mutation-insights.json` (git-ignored). Not in
+  `test-results/`: Playwright empties that folder at the start of every run, which
+  is why, before this fix, `runs` never got past 1. An old ledger left in
+  `test-results/` is read once and moved over.
+- **What it learns: only the order.** Inside each seed, mutants that failed
+  within their last 5 recorded runs go first, never-seen mutants next, the rest
+  last, keeping the declared order inside each group. It never changes a
+  verdict, never adds or drops mutants, and never retries anything.
+- **Forgetting.** `runs` counts every run ever. `failures` counts only `failed`
+  results among the last 5 runs of that mutant (`HISTORY_WINDOW`, kept in
+  `history`). A mutant that failed once goes back to its place after 5 more runs.
+- **Timeouts are not failures.** They go to their own counter, `timeouts`, and
+  don't move a mutant up: a timeout usually points at the machine, not the
+  mutant. `interrupted` counts as neither.
+- **Corrupt ledger.** The run says so (a `⚠` line in the terminal and a
+  `ledger-warning` annotation in the HTML report), runs in declared order, and
+  keeps the bad file as `ledger/mutation-insights.json.corrupt` before writing a
+  fresh one.
+- **In CI.** Before the mutants, CI downloads the `mutation-insights` artifact of
+  the most recent completed run on `main` (none → fresh start, no error) and
+  uploads the updated ledger at the end (kept 90 days). PRs read `main`'s
+  ledger; what they upload is never read back.
+- **Equivalent mutants are not counted.** A mutant that plants nothing
+  observable cannot be killed. The auditor has one, stripping
+  `X-Frame-Options`: the hardened baseline never sends it, because its CSP
+  already carries `frame-ancestors 'none'`. The report lists it as
+  `equivalent` with that reason, it stays out of the kill rate, and a test
+  re-checks on every run that the auditor's output is still identical to the
+  baseline's.
 
 📖 Full rationale, learning loop and roadmap: **[docs/MUTATION-TESTING.md](docs/MUTATION-TESTING.md)**.
 
@@ -461,7 +497,8 @@ npm run test:audit
   cleartext traffic, debuggable builds, hardcoded secrets, from a decoded
   manifest fixture (documented path to a real APK via `rea`).
 - **Security mutants** — plant one defect at a time over a hardened baseline
-  and verify the scanners catch it; current kill rate **6/6 (100%)**.
+  and verify the scanners catch it; current kill rate **6/6 (100%)**, plus 1
+  equivalent mutant reported apart and left out of the rate.
 
 📖 What each POC demonstrates, how to run it, and its honest limits:
 **[docs/AUDIT-POC.md](docs/AUDIT-POC.md)**.
@@ -533,6 +570,7 @@ Running 19 tests using N workers
 | ------------------------------------------------ | -------------------------------------- |
 | `npm test`                                       | **mock** suite (default, always green) |
 | `npm run test:mock`                              | Same, explicit                         |
+| `npm run test:unit`                              | Ledger unit tests (no browser)         |
 | `npm run test:mutation`                          | 🧬 Learning mutant scenarios           |
 | `npm run test:a11y`                              | Accessibility checks only (`@a11y`)    |
 | `npm run test:audit`                             | 🔒 Security-audit-service POCs         |
@@ -569,8 +607,8 @@ All in [`playwright.config.ts`](playwright.config.ts) + [`src/config/testConfig.
 
 - **HTML report** → `playwright-report/` (`npm run report`).
 - **JUnit XML** → `test-results/junit.xml` (CI dashboards).
-- **Mutation ledger** → `test-results/mutation-insights.json` (learning input).
-- **Audit reports** → `test-results/audit/*.json`+`.html` and `test-results/audit-mutation-insights.json` (see [AUDIT-POC.md](docs/AUDIT-POC.md)).
+- **Mutation ledgers** → `ledger/mutation-insights.json` and `ledger/audit-mutation-insights.json` (learning input; survive between runs).
+- **Audit reports** → `test-results/audit/*.json`+`.html` (see [AUDIT-POC.md](docs/AUDIT-POC.md)).
 - **Visual baselines** → `tests/visual/*-snapshots/*-linux.png` (committed); diffs land in `test-results/` on a mismatch.
 - **On failure** → screenshot, video and trace attached automatically.
 
@@ -587,7 +625,9 @@ flowchart LR
   C --> D[Install Chromium]
   D --> E[Lint]
   E --> F[Typecheck]
-  F --> G[Mock suite + a11y]
+  F --> U[Ledger unit tests]
+  U --> R[Restore ledgers from latest main run]
+  R --> G[Mock suite + a11y]
   G --> H[Mutation suite]
   H --> I[Audit POCs suite]
   I --> K[API suite]
@@ -595,6 +635,7 @@ flowchart LR
   L --> M[Performance suite]
   M --> N[Visual regression suite]
   N --> J[Upload report + ledgers]
+  I -.-> AR[Upload audit reports]
 ```
 
 CI runs every deterministic project, so the pipeline is fast and never fails

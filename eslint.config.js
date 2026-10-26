@@ -9,7 +9,7 @@ import globals from 'globals';
  */
 export default tseslint.config(
   {
-    ignores: ['node_modules', 'playwright-report', 'test-results', 'blob-report'],
+    ignores: ['node_modules', 'playwright-report', 'test-results', 'blob-report', 'ledger'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

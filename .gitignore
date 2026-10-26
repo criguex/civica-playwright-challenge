@@ -7,6 +7,9 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
+# Mutation learning ledgers (persist between runs; CI carries them as an artifact)
+/ledger/
+
 # Env / secrets
 .env
 .env.local

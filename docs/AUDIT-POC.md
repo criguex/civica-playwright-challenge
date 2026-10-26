@@ -164,6 +164,7 @@ Android manifest — and inject exactly **one** planted defect per mutant:
 | ---------------------- | -------------------------------------------------------------- |
 | `pii-leak`             | raw card number added to an otherwise-clean body               |
 | `missing-header` (×3)  | CSP / HSTS / X-Content-Type-Options stripped                   |
+| `missing-header` (eq.) | X-Frame-Options stripped — **equivalent**, see below           |
 | `insecure-cookie`      | `Secure`/`HttpOnly`/`SameSite` stripped from a hardened cookie |
 | `dangerous-permission` | `READ_SMS` added to the hardened manifest                      |
 
@@ -173,21 +174,38 @@ when the control has a blind spot — the same self-checking contract as
 `src/support/mutations.ts`'s search mutants, aimed at the auditor instead of
 the IMDb mock.
 
+**Equivalent mutants:** stripping `X-Frame-Options` plants nothing, because the
+hardened baseline never sends that header: its CSP already carries
+`frame-ancestors 'none'`, which the auditor accepts as clickjacking protection.
+No auditor could kill that mutant, so it is marked `equivalent` with that
+reason: it is left out of the kill rate, the report lists it as
+`Equivalent: missing-header` with the reason as evidence, and its own test
+(`@auditEquivalent`) checks on every run that the auditor's findings on the
+mutated headers are still identical to the baseline's. If the baseline ever
+changes so that stripping the header becomes observable, that test fails and
+the mutant has to be reclassified.
+
 **Learning loop:** outcomes are written to
-[`test-results/audit-mutation-insights.json`](../reporters/auditMutationInsightsReporter.ts) —
+[`ledger/audit-mutation-insights.json`](../reporters/auditMutationInsightsReporter.ts) —
 a sibling of the search-mutant ledger
-([`test-results/mutation-insights.json`](../src/support/mutationPaths.ts)), kept
-separate so the two learning loops never collide.
+([`ledger/mutation-insights.json`](../src/support/mutationPaths.ts)), kept
+separate so the two learning loops never collide. Same rules as the search
+ledger (5-run forgetting window, timeouts apart, fail-open with a warning on a
+corrupt file; see [MUTATION-TESTING.md](MUTATION-TESTING.md)). Equivalent
+mutants never enter it. Unlike the search mutants, this ledger is only
+recorded: nothing reorders the security mutants yet.
 
 **Run it:**
 
 ```bash
 npm run test:audit -- securityMutants
-cat test-results/audit-mutation-insights.json     # cumulative ledger (runs/failures per mutant)
+cat ledger/audit-mutation-insights.json           # ledger (runs, last-5 history per mutant)
 cat test-results/audit/security-mutants.json      # this run's kill-rate report
 ```
 
-**Kill rate (this run): 6/6 — 100%.** Every planted defect was caught. A
+**Kill rate (this run): 6/6 — 100%, 1 equivalent excluded.** Every planted
+defect was caught. Counting the equivalent mutant as a survivor would have
+shown 6/7 (86%), a "finding" about the catalog, not the auditor. A
 mutant that ever survives is a genuine, actionable finding about the audit
 service itself (not the mocks it's measured against), and is exactly the kind
 of regression this loop exists to catch before it reaches a real engagement.
@@ -228,12 +246,13 @@ flowchart TD
 ```bash
 npm run test:audit                      # all three POCs
 cat test-results/audit/*.json           # every report this run produced
-cat test-results/audit-mutation-insights.json
+cat ledger/audit-mutation-insights.json
 ```
 
 CI runs this project the same way it runs `mock`/`mutation` — deterministic,
-offline, fast — and uploads `test-results/audit/` plus the ledger as a build
-artifact (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
+offline, fast — uploads `test-results/audit/` right after the audit step (later
+Playwright runs empty `test-results/`), and carries the ledger over between
+runs as the `mutation-insights` artifact (see [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
 
 ---
 

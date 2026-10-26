@@ -4,4 +4,5 @@
  * the two learning loops never collide, written by
  * `reporters/auditMutationInsightsReporter.ts`.
  */
-export const AUDIT_INSIGHTS_PATH = 'test-results/audit-mutation-insights.json';
+export const AUDIT_INSIGHTS_PATH = 'ledger/audit-mutation-insights.json';
+export const LEGACY_AUDIT_INSIGHTS_PATH = 'test-results/audit-mutation-insights.json';

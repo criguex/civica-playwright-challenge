@@ -9,8 +9,10 @@ import { testConfig } from './src/config/testConfig.js';
  *                 intercepted by an in-process router (see mocks/server). This
  *                 is the default project and what CI runs. Includes the
  *                 accessibility checks.
+ *  - `unit`     : pure-function tests of the learning ledger (order, forgetting,
+ *                 corrupt file). No browser.
  *  - `mutation` : mutant search scenarios generated from golden flows and
- *                 prioritized from previous-run insights (see docs).
+ *                 prioritized from previous-run insights kept in `ledger/`.
  *  - `audit`    : security-audit-service POCs — web exposure scan, Android
  *                 static analysis, security mutants (see docs/AUDIT-POC.md).
  *                 Deterministic and offline, same as `mock`/`mutation`.
@@ -66,6 +68,10 @@ export default defineConfig({
       name: 'mock',
       testDir: './tests/mock',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'unit',
+      testDir: './tests/unit',
     },
     {
       name: 'mutation',

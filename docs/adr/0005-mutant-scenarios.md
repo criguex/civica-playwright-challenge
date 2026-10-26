@@ -13,8 +13,9 @@ on what previous executions revealed.
 Generate mutant scenarios from golden flows (`src/support/mutations.ts`) in three
 classes (equivalent / boundary / negative), each self-checking its expected
 outcome. A reporter records outcomes into a ledger
-(`test-results/mutation-insights.json`); the engine reads it to prioritize
-previously-failing and never-seen mutants first (`prioritize()`), keeping the run
+(`ledger/mutation-insights.json`, outside Playwright's output folder so it
+survives between runs; CI restores it from the latest `main` run); the engine reads it to prioritize
+mutants that failed in their last 5 runs, then never-seen ones, first (`prioritize()`), keeping the run
 deterministic via stable sorting.
 
 ## Consequences

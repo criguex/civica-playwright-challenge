@@ -9,18 +9,19 @@
 <g clip-path="url(#c)"><rect width="1280" height="566" fill="#071B2B"/><rect width="1280" height="566" fill="url(#g)"/><rect x="0" y="0" width="8" height="566" fill="#55DFBD"/></g>
 <text x="48" y="56" font-family="Menlo,Consolas,monospace" font-size="13" font-weight="normal" fill="#8FA6B0" text-anchor="start" letter-spacing="2.5" xml:space="preserve">CIVICA-PLAYWRIGHT-CHALLENGE · HOW IT WORKS</text>
 <text x="48" y="92" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="28" font-weight="bold" fill="#F4F7F5" text-anchor="start" xml:space="preserve">One set of Page Objects, several backends</text>
-<text x="48" y="120" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">76 tests: 74 pass in CI on deterministic backends; the 2 live E2E tests skip honestly behind IMDb's bot wall.</text>
+<text x="48" y="120" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">84 tests: 82 pass in CI on deterministic backends; the 2 live E2E tests skip honestly behind IMDb's bot wall.</text>
 <rect x="48" y="146" width="230" height="240" rx="12" fill="#0D2638" stroke="#214456" stroke-width="1.5"/>
 <text x="64" y="170" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#8FA6B0" text-anchor="start" letter-spacing="0.5" xml:space="preserve">tests/</text>
 <text x="64" y="194" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#F4F7F5" text-anchor="start" xml:space="preserve">Specs by project</text>
-<text x="64" y="219" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">mock .......... 19</text>
-<text x="64" y="238" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">mutation ...... 21</text>
-<text x="64" y="257" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">audit ......... 9</text>
-<text x="64" y="276" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">api ........... 11</text>
-<text x="64" y="295" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">contract ...... 6</text>
-<text x="64" y="314" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">performance ... 4</text>
-<text x="64" y="333" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">visual ........ 4</text>
-<text x="64" y="352" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">e2e (live) .... 2</text>
+<text x="64" y="219" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">unit .......... 7</text>
+<text x="64" y="238" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">mock .......... 19</text>
+<text x="64" y="257" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">mutation ...... 21</text>
+<text x="64" y="276" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">audit ......... 10</text>
+<text x="64" y="295" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">api ........... 11</text>
+<text x="64" y="314" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">contract ...... 6</text>
+<text x="64" y="333" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">performance ... 4</text>
+<text x="64" y="352" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">visual ........ 4</text>
+<text x="64" y="371" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">e2e (live) .... 2</text>
 <rect x="300" y="146" width="240" height="240" rx="12" fill="#0D2638" stroke="#214456" stroke-width="1.5"/>
 <text x="316" y="170" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#8FA6B0" text-anchor="start" letter-spacing="0.5" xml:space="preserve">src/fixtures/</text>
 <text x="316" y="194" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#F4F7F5" text-anchor="start" xml:space="preserve">Fixtures (DI)</text>
@@ -56,8 +57,8 @@
 <text x="1068" y="170" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#8FA6B0" text-anchor="start" letter-spacing="0.5" xml:space="preserve">reporters/</text>
 <text x="1068" y="194" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#F4F7F5" text-anchor="start" xml:space="preserve">Reports</text>
 <text x="1068" y="219" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">list · html · junit</text>
-<text x="1068" y="238" font-family="Menlo,Consolas,monospace" font-size="12.5" xml:space="preserve"><tspan fill="#F4F7F5">mutation-</tspan></text>
-<text x="1068" y="257" font-family="Menlo,Consolas,monospace" font-size="12.5" xml:space="preserve"><tspan fill="#F4F7F5">insights.json</tspan></text>
+<text x="1068" y="238" font-family="Menlo,Consolas,monospace" font-size="12.5" xml:space="preserve"><tspan fill="#F4F7F5">ledger/</tspan></text>
+<text x="1068" y="257" font-family="Menlo,Consolas,monospace" font-size="12.5" xml:space="preserve"><tspan fill="#F4F7F5">*-insights.json</tspan></text>
 <text x="1068" y="276" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">audit/*.json+html</text>
 <text x="1068" y="295" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">on failure:</text>
 <text x="1068" y="314" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="start" xml:space="preserve">screenshot + video</text>
@@ -68,46 +69,50 @@
 <path d="M814 266.0 L822 266.0 L822 350 L832 350" fill="none" stroke="#FFC56E" stroke-width="2" marker-end="url(#ag)"/>
 <path d="M1032 266.0 L1050 266.0" fill="none" stroke="#55DFBD" stroke-width="2" marker-end="url(#am)"/>
 <path d="M1142 388 L1142 408 L163 408 L163 390" fill="none" stroke="#55DFBD" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#am)"/>
-<text x="640" y="428" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">learning loop · the ledger re-orders the next run's mutants: failing → new → passing</text>
+<text x="640" y="428" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">learning loop · ledger/ survives runs (CI restores it) · order: failed in last 5 runs → new → rest</text>
 <text x="48" y="466" font-family="Menlo,Consolas,monospace" font-size="12.5" font-weight="normal" fill="#8FA6B0" text-anchor="start" xml:space="preserve">CI · .github/workflows/ci.yml · Node 20 · every push and pull request to main</text>
-<rect x="48.0" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="101.8" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">lint</text>
-<text x="101.8" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">eslint</text>
-<path d="M157.6 500.0 L165.6 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="167.6" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="221.39999999999998" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">typecheck</text>
-<text x="221.39999999999998" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">tsc</text>
-<path d="M277.2 500.0 L285.2 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="287.2" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="341.0" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">mock</text>
-<text x="341.0" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 19 passed</tspan></text>
-<path d="M396.8 500.0 L404.8 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="406.8" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="460.6" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">mutation</text>
-<text x="460.6" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 21 passed</tspan></text>
-<path d="M516.4 500.0 L524.4 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="526.4" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="580.1999999999999" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">audit</text>
-<text x="580.1999999999999" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 9 passed</tspan></text>
-<path d="M636.0 500.0 L644.0 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="646.0" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="699.8" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">api</text>
-<text x="699.8" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 11 passed</tspan></text>
-<path d="M755.6 500.0 L763.6 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="765.6" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="819.4" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">contract</text>
-<text x="819.4" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 6 passed</tspan></text>
-<path d="M875.2 500.0 L883.2 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="885.2" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="939.0" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">performance</text>
-<text x="939.0" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 4 passed</tspan></text>
-<path d="M994.8 500.0 L1002.8 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="1004.8" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="1058.6" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">visual</text>
-<text x="1058.6" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 4 passed</tspan></text>
-<path d="M1114.4 500.0 L1122.4 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
-<rect x="1124.4" y="478" width="107.6" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
-<text x="1178.2" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">upload</text>
-<text x="1178.2" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">report+ledgers</text>
+<rect x="48.0" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="97.25" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">lint+types</text>
+<text x="97.25" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">eslint · tsc</text>
+<path d="M148.5 500.0 L154.5 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="156.5" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="205.75" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">unit</text>
+<text x="205.75" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 7 passed</tspan></text>
+<path d="M257.1 500.0 L263.1 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="265.1" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="314.35" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">restore</text>
+<text x="314.35" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">main ledger</text>
+<path d="M365.6 500.0 L371.6 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="373.6" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="422.85" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">mock</text>
+<text x="422.85" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 19 passed</tspan></text>
+<path d="M474.2 500.0 L480.2 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="482.2" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="531.45" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">mutation</text>
+<text x="531.45" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 21 passed</tspan></text>
+<path d="M582.7 500.0 L588.7 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="590.7" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="639.95" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">audit</text>
+<text x="639.95" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 10 passed</tspan></text>
+<path d="M691.3 500.0 L697.3 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="699.3" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="748.55" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">api</text>
+<text x="748.55" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 11 passed</tspan></text>
+<path d="M799.8 500.0 L805.8 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="807.8" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="857.05" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">contract</text>
+<text x="857.05" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 6 passed</tspan></text>
+<path d="M908.4 500.0 L914.4 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="916.4" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="965.65" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">performance</text>
+<text x="965.65" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 4 passed</tspan></text>
+<path d="M1016.9 500.0 L1022.9 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="1024.9" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="1074.15" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">visual</text>
+<text x="1074.15" y="513" font-family="Menlo,Consolas,monospace" font-size="11" text-anchor="middle" xml:space="preserve"><tspan fill="#55DFBD" font-weight="bold">✓</tspan><tspan fill="#ABC0C8"> 4 passed</tspan></text>
+<path d="M1125.5 500.0 L1131.5 500.0" fill="none" stroke="#55DFBD" stroke-width="1.6" marker-end="url(#am)"/>
+<rect x="1133.5" y="478" width="98.5" height="44" rx="8" fill="#123448" stroke="#214456" stroke-width="1.2"/>
+<text x="1182.75" y="496" font-family="Menlo,Consolas,monospace" font-size="12" font-weight="normal" fill="#F4F7F5" text-anchor="middle" xml:space="preserve">upload</text>
+<text x="1182.75" y="513" font-family="Menlo,Consolas,monospace" font-size="11" font-weight="normal" fill="#ABC0C8" text-anchor="middle" xml:space="preserve">report+ledger</text>
 <text x="1232" y="544" font-family="Menlo,Consolas,monospace" font-size="13" font-weight="normal" fill="#55DFBD" text-anchor="end" xml:space="preserve">Cristian Guerra · QA · Medellín</text>
 </svg>

@@ -17,7 +17,11 @@ import { logger } from '../../src/utils/logger.js';
  * See docs/MUTATION-TESTING.md for the full rationale.
  */
 const SEED_MOVIES = [inception, shawshankRedemption, theDarkKnight];
-const insights = loadInsights();
+const { ledger: insights, warning: ledgerWarning } = loadInsights();
+if (ledgerWarning) {
+  logger.warn(ledgerWarning);
+}
+const annotation = ledgerWarning ? [{ type: 'ledger-warning', description: ledgerWarning }] : [];
 
 for (const seed of SEED_MOVIES) {
   const mutants = prioritize(generateSearchMutants(seed.title), insights);
@@ -25,21 +29,21 @@ for (const seed of SEED_MOVIES) {
 
   test.describe(`Mutant search · ${seed.title}`, () => {
     for (const mutant of mutants) {
-      test(`${mutant.id} [${mutant.category}] → ${mutant.expectation} @mutant`, async ({
-        homePage,
-        searchResultsPage,
-        page,
-      }) => {
-        await homePage.open();
-        await homePage.searchFor(mutant.query);
+      test(
+        `${mutant.id} [${mutant.category}] → ${mutant.expectation} @mutant`,
+        { annotation },
+        async ({ homePage, searchResultsPage, page }) => {
+          await homePage.open();
+          await homePage.searchFor(mutant.query);
 
-        if (mutant.expectation === 'found') {
-          const detailsPage = await searchResultsPage.openFirstResult(seed.title);
-          await expect(detailsPage.title).toContainText(seed.title);
-        } else {
-          await expect(page.getByText(/no results found/i)).toBeVisible();
-        }
-      });
+          if (mutant.expectation === 'found') {
+            const detailsPage = await searchResultsPage.openFirstResult(seed.title);
+            await expect(detailsPage.title).toContainText(seed.title);
+          } else {
+            await expect(page.getByText(/no results found/i)).toBeVisible();
+          }
+        },
+      );
     }
   });
 }

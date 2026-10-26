@@ -29,7 +29,7 @@ independent POCs (see [AUDIT-POC.md](../AUDIT-POC.md)):
 Each scanner/analyzer emits the same `AuditFinding`/`AuditReport` shape
 (`src/audit/types.ts`), so one renderer/writer serves all three. The security
 mutants write to a sibling ledger
-(`test-results/audit-mutation-insights.json`) via a sibling reporter, instead
+(`ledger/audit-mutation-insights.json`) via a sibling reporter, instead
 of touching the existing search-mutant ledger or its reporter.
 
 ## Consequences
