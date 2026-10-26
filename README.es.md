@@ -4,6 +4,34 @@
   <img src="docs/assets/banner.svg" alt="civica-playwright-challenge: framework de Playwright + TypeScript para flujos de IMDb con un solo set de Page Objects, un mock determinista, mutantes y POCs de auditoría" width="100%">
 </p>
 
+## Explicado para un niño de 8 años
+
+Imagina que quieres practicar penaltis, pero el estadio de verdad tiene un vigilante que no deja entrar robots. Entonces armas una copia del estadio en el patio, con el mismo arco y las mismas líneas, y practicas ahí. Este proyecto hace eso con IMDb, una página grande de películas: el sitio real les pregunta a los robots "¿eres humano?", así que las pruebas corren en una copia de práctica y usan exactamente las mismas instrucciones en las dos. Además hace la misma pregunta de formas raras, para estar seguro de que las pruebas no pasan de suerte.
+
+### Un ejemplo real
+
+- **Imagina que:** el robot busca "zzqxw404movie", un nombre que ninguna película tiene.
+- **Qué debería pasar:** la página no muestra resultados.
+- **Qué hace el proyecto:** fabrica este "mutante" a partir de "Inception" y revisa que la copia no encuentre nada; de la misma familia también prueba "INCEPTION" e "Incep", que sí tienen que encontrar la película.
+- **Qué ganamos:** si la búsqueda empezara a encontrar cualquier cosa, o dejara de ignorar las mayúsculas, un mutante lo pillaría. En CI pasaron las 21 pruebas mutantes.
+
+<p align="center">
+  <img src="docs/assets/explained.es.gif" alt="Historia ilustrada: el IMDb real frena al robot, así que practica en una copia; busca Inception y la revisa, pregunta lo mismo de formas raras y un detective atrapa 6 de 6 fugas sembradas" width="960">
+</p>
+
+La misma animación en [MP4](docs/assets/explained.es.mp4).
+
+### Palabras difíciles
+
+| Palabra | Qué quiere decir |
+|---|---|
+| Mock | Una copia de práctica de una página real |
+| Page Object | Una chuleta de una página: dónde está cada botón, para que las pruebas no tengan que acordarse |
+| Mutante | La misma prueba con un cambiecito, para ver si las revisiones de verdad se dan cuenta |
+| Muro anti-bot | La página de "¿eres humano?" que bloquea a los robots |
+| Skip | La prueba se hace a un lado y explica por qué, en vez de fallar sin razón |
+| CI | Un robot que corre todas las pruebas cada vez que alguien sube un cambio |
+
 <div align="center">
 
 # 🎬 Cívica — Reto de Automatización de Pruebas (IMDb)
@@ -86,7 +114,7 @@ Los specs están agrupados en proyectos de Playwright. Los fixtures inyectan los
   <img src="docs/assets/how-it-works.gif" alt="Animación: el flujo se ilumina mientras se reproduce, suite por suite, el log real de CI del run 38665514760, desde las 19 pruebas mock hasta la suite visual, con la tasa de muerte de mutantes de seguridad de 6/6" width="960">
 </p>
 
-La animación reproduce el log real del run de CI [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) en `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contrato 6, performance 4 y visual 4, todas pasaron (también en [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` dibuja cada cuadro a partir de `?t=<segundos>` y `docs/scenes/export.sh` regenera el GIF y el MP4 con Chrome headless y ffmpeg.
+La animación reproduce el log real del run de CI [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) en `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contrato 6, performance 4 y visual 4, todas pasaron (también en [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` dibuja cada cuadro a partir de `?t=<segundos>` y `docs/scenes/export.sh` regenera el GIF y el MP4 con Chrome headless y ffmpeg. La animación para niños funciona igual con `docs/scenes/explained.html` (`?t=<segundos>&lang=en|es`) y `docs/scenes/export-explained.sh`.
 
 ---
 

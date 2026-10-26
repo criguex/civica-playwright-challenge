@@ -4,6 +4,34 @@
   <img src="docs/assets/banner.svg" alt="civica-playwright-challenge: Playwright + TypeScript framework for IMDb flows with one set of Page Objects, a deterministic mock, mutants and audit POCs" width="100%">
 </p>
 
+## Explained like you're 8
+
+Imagine you want to practice penalty kicks, but the real stadium has a guard who does not let robots in. So you build a copy of the stadium in your backyard, with the same goal and the same lines, and practice there. This project does that with IMDb, a big movie website: the real site asks robots "are you human?", so the tests run on a practice copy and use the very same instructions on both. It also asks the same question in silly ways, to be sure the tests are not passing by luck.
+
+### A real example
+
+- **Imagine that:** the robot searches for "zzqxw404movie", a name no movie has.
+- **What should happen:** the site shows no results.
+- **What the project does:** it makes this "mutant" out of "Inception" and checks that the copy finds nothing; the same family also tries "INCEPTION" and "Incep", which must still find the movie.
+- **What we gain:** if search started matching anything, or stopped ignoring capital letters, a mutant would catch it. On CI the 21 mutant checks passed.
+
+<p align="center">
+  <img src="docs/assets/explained.gif" alt="Illustrated story: the real IMDb stops the robot, so it practices on a copy; it searches Inception and checks it, asks the same thing in silly ways, and a detective catches 6 of 6 planted leaks" width="960">
+</p>
+
+The same animation as [MP4](docs/assets/explained.mp4).
+
+### Hard words
+
+| Word | What it means |
+|---|---|
+| Mock | A practice copy of a real website |
+| Page Object | A cheat sheet for one page: where each button is, so the tests don't have to remember |
+| Mutant | The same test with a small twist, to see if the checks really notice |
+| Bot wall | The "are you human?" page that blocks robots |
+| Skip | The test steps aside and says why, instead of failing for no reason |
+| CI | A robot that runs all the tests every time someone uploads a change |
+
 <div align="center">
 
 # 🎬 Cívica — IMDb Test Automation Challenge
@@ -86,7 +114,7 @@ Specs are grouped into Playwright projects. Fixtures inject the Page Objects and
   <img src="docs/assets/how-it-works.gif" alt="Animation: the flow lights up while the real CI log of run 38665514760 is replayed suite by suite, from 19 mock tests to the visual suite, with the security mutant kill rate of 6/6" width="960">
 </p>
 
-The animation replays the real log of CI run [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) on `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contract 6, performance 4 and visual 4, all passed (also as [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` draws each frame from `?t=<seconds>` and `docs/scenes/export.sh` rebuilds the GIF and MP4 with headless Chrome and ffmpeg.
+The animation replays the real log of CI run [38665514760](https://github.com/criguex/civica-playwright-challenge/actions/runs/38665514760) on `main` (2026-10-15): mock 19, mutation 21, audit 9, API 11, contract 6, performance 4 and visual 4, all passed (also as [MP4](docs/assets/how-it-works.mp4)). `docs/scenes/how-it-works.html` draws each frame from `?t=<seconds>` and `docs/scenes/export.sh` rebuilds the GIF and MP4 with headless Chrome and ffmpeg. The kids' animation works the same way with `docs/scenes/explained.html` (`?t=<seconds>&lang=en|es`) and `docs/scenes/export-explained.sh`.
 
 ---
 

@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=block" rel="stylesheet">
+<style>
+html,body{margin:0;width:960px;height:540px;overflow:hidden;background:#071B2B}
+svg{display:block}
+</style>
+</head>
+<body>
+<svg id="v" width="960" height="540" viewBox="0 0 960 540"></svg>
+<script>
+const S = {
+ "repo": "CIVICA-PLAYWRIGHT-CHALLENGE",
+ "duration": 15,
+ "beats": [
+  {
+   "t0": 0,
+   "t1": 3,
+   "cap": {
+    "en": "The real IMDb stops robots",
+    "es": "El IMDb real frena a los robots"
+   },
+   "items": [
+    {
+     "sp": "robot",
+     "x": 190,
+     "y": 320,
+     "face": "flat",
+     "label": {
+      "en": "test robot",
+      "es": "robot de prueba"
+     }
+    },
+    {
+     "sp": "door",
+     "x": 460,
+     "y": 320,
+     "k": "warn",
+     "label": "imdb.com"
+    },
+    {
+     "sp": "bubble",
+     "x": 460,
+     "y": 168,
+     "w": 380,
+     "text": "Let's confirm you are human",
+     "size": 17,
+     "at": 0.5
+    },
+    {
+     "sp": "mark",
+     "x": 760,
+     "y": 300,
+     "k": "warn",
+     "r": 42,
+     "text": {
+      "en": "skip, with a reason",
+      "es": "se salta, con una razón"
+     },
+     "at": 1.4
+    }
+   ]
+  },
+  {
+   "t0": 3,
+   "t1": 6,
+   "cap": {
+    "en": "So we built a practice copy",
+    "es": "Por eso armamos una copia de práctica"
+   },
+   "items": [
+    {
+     "sp": "house",
+     "x": 520,
+     "y": 300,
+     "k": "ok",
+     "label": {
+      "en": "IMDb copy (mock)",
+      "es": "copia de IMDb (mock)"
+     }
+    },
+    {
+     "sp": "robot",
+     "x": 240,
+     "y": 320,
+     "label": {
+      "en": "same robot",
+      "es": "el mismo robot"
+     },
+     "at": 0.5
+    },
+    {
+     "sp": "arrow",
+     "x": 310,
+     "y": 320,
+     "dx": 120,
+     "dy": 0,
+     "at": 0.9
+    },
+    {
+     "sp": "pill",
+     "x": 780,
+     "y": 300,
+     "w": 250,
+     "k": "ok",
+     "text": {
+      "en": "works offline",
+      "es": "funciona sin internet"
+     },
+     "mono": false,
+     "at": 1.3
+    }
+   ]
+  },
+  {
+   "t0": 6,
+   "t1": 9,
+   "cap": {
+    "en": "Search \"Inception\", open it, check it",
+    "es": "Busca \"Inception\", la abre y la revisa"
+   },
+   "items": [
+    {
+     "sp": "bubble",
+     "x": 230,
+     "y": 230,
+     "w": 230,
+     "text": "Inception",
+     "mono": true
+    },
+    {
+     "sp": "arrow",
+     "x": 360,
+     "y": 300,
+     "dx": 180,
+     "dy": 0,
+     "at": 0.5
+    },
+    {
+     "sp": "card",
+     "x": 640,
+     "y": 300,
+     "title": "Inception",
+     "sub": {
+      "en": "title · rating · year",
+      "es": "título · nota · año"
+     },
+     "k": "ok",
+     "w": 200,
+     "at": 0.9
+    },
+    {
+     "sp": "mark",
+     "x": 800,
+     "y": 300,
+     "k": "ok",
+     "r": 34,
+     "at": 1.6
+    }
+   ]
+  },
+  {
+   "t0": 9,
+   "t1": 12,
+   "cap": {
+    "en": "Ask the same thing in silly ways",
+    "es": "Pregunta lo mismo de formas raras"
+   },
+   "items": [
+    {
+     "sp": "pill",
+     "x": 480,
+     "y": 190,
+     "w": 520,
+     "k": "ok",
+     "text": {
+      "en": "\"INCEPTION\" → still found",
+      "es": "\"INCEPTION\" → igual la encuentra"
+     }
+    },
+    {
+     "sp": "pill",
+     "x": 480,
+     "y": 260,
+     "w": 520,
+     "k": "ok",
+     "text": {
+      "en": "\"Incep\" → still found",
+      "es": "\"Incep\" → igual la encuentra"
+     },
+     "at": 0.5
+    },
+    {
+     "sp": "pill",
+     "x": 480,
+     "y": 330,
+     "w": 520,
+     "k": "ok",
+     "text": {
+      "en": "\"zzqxw404movie\" → nothing (correct)",
+      "es": "\"zzqxw404movie\" → nada (correcto)"
+     },
+     "at": 1.0
+    },
+    {
+     "sp": "text",
+     "x": 480,
+     "y": 410,
+     "text": {
+      "en": "21 mutant checks passed on CI",
+      "es": "21 pruebas mutantes pasaron en CI"
+     },
+     "size": 19,
+     "c": "#ABC0C8",
+     "at": 1.5
+    }
+   ]
+  },
+  {
+   "t0": 12,
+   "t1": 15,
+   "cap": {
+    "en": "A detective hunts planted leaks",
+    "es": "Un detective busca fugas sembradas"
+   },
+   "items": [
+    {
+     "sp": "doc",
+     "x": 330,
+     "y": 300,
+     "w": 300,
+     "h": 210,
+     "title": {
+      "en": "server answer",
+      "es": "respuesta del servidor"
+     },
+     "lines": [
+      "fullName: …",
+      "maskedCard: ****1111",
+      {
+       "k": "warn",
+       "t": {
+        "en": "cardNumber: full!",
+        "es": "cardNumber: ¡completo!"
+       }
+      },
+      "status: ok"
+     ]
+    },
+    {
+     "sp": "glass",
+     "x": 525,
+     "y": 325,
+     "s": 1.2,
+     "at": 0.4
+    },
+    {
+     "sp": "pill",
+     "x": 720,
+     "y": 270,
+     "w": 300,
+     "k": "ok",
+     "text": {
+      "en": "caught 6 of 6",
+      "es": "atrapó 6 de 6"
+     },
+     "at": 1.2
+    },
+    {
+     "sp": "text",
+     "x": 720,
+     "y": 330,
+     "text": {
+      "en": "planted bugs found",
+      "es": "errores sembrados hallados"
+     },
+     "size": 17,
+     "c": "#ABC0C8",
+     "at": 1.5
+    }
+   ]
+  }
+ ]
+};
+const q = new URLSearchParams(location.search);
+const t = parseFloat(q.get('t') || '0');
+const lang = q.get('lang') === 'es' ? 'es' : 'en';
+const C = {navy: '#071B2B', deep: '#0D2638', panel: '#123448', grid: '#214456', mint: '#55DFBD', gold: '#FFC56E', coral: '#FB8176', white: '#F4F7F5', muted: '#ABC0C8', muted2: '#8FA6B0'};
+const K = {ok: C.mint, no: C.coral, warn: C.gold, plain: C.grid};
+const SANS = "'Space Grotesk',sans-serif", MONO = "'JetBrains Mono',monospace", HEAD = "'Archivo Black',sans-serif";
+const L = x => x == null ? '' : (typeof x === 'object' ? x[lang] : String(x));
+const esc = s => L(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const clamp = x => Math.max(0, Math.min(1, x));
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const ease = x => 1 - Math.pow(1 - x, 3);
+const tx = (x, y, s, o) => {
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-family="${o.f || SANS}" font-size="${o.size || 16}" font-weight="${o.w || 500}" fill="${o.c || C.white}" text-anchor="${o.a || 'middle'}">${esc(s)}</text>`;
+};
+const SP = {
+  robot: p => {
+    const c = K[p.k] || p.c || C.mint;
+    const mouth = p.face === 'sad' ? `<path d="M-14 -18 Q0 -28 14 -18" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round"/>`
+      : p.face === 'flat' ? `<path d="M-12 -22 H12" stroke="${c}" stroke-width="4" stroke-linecap="round"/>`
+      : `<path d="M-14 -24 Q0 -12 14 -24" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    return `<line x1="0" y1="-78" x2="0" y2="-64" stroke="${c}" stroke-width="4"/><circle cx="0" cy="-82" r="6" fill="${c}"/>
+      <rect x="-42" y="-64" width="84" height="58" rx="16" fill="${C.deep}" stroke="${c}" stroke-width="4"/>
+      <circle cx="-16" cy="-40" r="7" fill="${c}"/><circle cx="16" cy="-40" r="7" fill="${c}"/>${mouth}
+      <rect x="-32" y="0" width="64" height="54" rx="12" fill="${C.deep}" stroke="${c}" stroke-width="4"/>
+      <rect x="-50" y="8" width="14" height="36" rx="7" fill="${c}"/><rect x="36" y="8" width="14" height="36" rx="7" fill="${c}"/>
+      ${p.label ? tx(0, 82, p.label, {size: 17, w: 700}) : ''}`;
+  },
+  win: p => {
+    const w = p.w || 220, h = p.h || 150, c = K[p.k] || C.grid;
+    let s = `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="12" fill="${C.deep}" stroke="${c}" stroke-width="3"/>
+      <path d="M${-w / 2} ${-h / 2 + 30} H${w / 2}" stroke="${c}" stroke-width="2"/>
+      <circle cx="${-w / 2 + 16}" cy="${-h / 2 + 15}" r="5" fill="${C.grid}"/><circle cx="${-w / 2 + 32}" cy="${-h / 2 + 15}" r="5" fill="${C.grid}"/><circle cx="${-w / 2 + 48}" cy="${-h / 2 + 15}" r="5" fill="${C.grid}"/>
+      ${tx(-w / 2 + 64, -h / 2 + 20, p.title, {size: 13, a: 'start', f: MONO, c: C.muted})}`;
+    (p.lines || []).forEach((l, i) => { s += tx(0, -h / 2 + 62 + i * 28, l, {size: p.ls || 18, w: 700, c: i === 0 ? C.white : C.muted}); });
+    return s;
+  },
+  box: p => {
+    const w = p.w || 120, h = p.h || 70, c = K[p.k] || p.c || C.grid;
+    return `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="12" fill="${p.fill || C.panel}" stroke="${c}" stroke-width="3"/>
+      ${tx(0, p.sub ? -2 : 7, p.label, {size: p.size || 18, w: 700, f: p.mono ? MONO : SANS})}${p.sub ? tx(0, 22, p.sub, {size: 13, c: C.muted, f: MONO}) : ''}`;
+  },
+  mark: p => {
+    const k = p.k || 'ok', c = K[k], r = p.r || 34;
+    const sym = k === 'ok' ? `<path d="M${-r * .45} 0 L${-r * .12} ${r * .33} L${r * .5} ${-r * .35}" stroke="${C.navy}" stroke-width="${r * .22}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
+      : k === 'no' ? `<path d="M${-r * .38} ${-r * .38} L${r * .38} ${r * .38} M${r * .38} ${-r * .38} L${-r * .38} ${r * .38}" stroke="${C.navy}" stroke-width="${r * .22}" stroke-linecap="round"/>`
+      : `<text x="0" y="${r * .42}" font-family="${HEAD}" font-size="${r * 1.3}" fill="${C.navy}" text-anchor="middle">!</text>`;
+    return `<circle r="${r}" fill="${c}"/>${sym}${p.text ? tx(0, r + 28, p.text, {size: 18, w: 700}) : ''}`;
+  },
+  glass: p => `<circle cx="-8" cy="-8" r="26" fill="${C.deep}" stroke="${C.gold}" stroke-width="7"/><path d="M11 11 L36 36" stroke="${C.gold}" stroke-width="11" stroke-linecap="round"/>`,
+  light: p => {
+    const on = p.on || 'mint';
+    const lamp = (cy, col, name) => `<circle cx="0" cy="${cy}" r="20" fill="${on === name ? col : C.grid}" opacity="${on === name ? 1 : .55}"/>`;
+    return `<rect x="-32" y="-80" width="64" height="160" rx="18" fill="${C.deep}" stroke="${C.grid}" stroke-width="3"/>${lamp(-46, C.coral, 'coral')}${lamp(0, C.gold, 'gold')}${lamp(46, C.mint, 'mint')}
+      ${p.label ? tx(0, 112, p.label, {size: 17, w: 700}) : ''}`;
+  },
+  door: p => {
+    const c = K[p.k] || C.grid;
+    return `<rect x="-46" y="-80" width="92" height="160" rx="10" fill="${C.panel}" stroke="${c}" stroke-width="4"/><circle cx="26" cy="6" r="6" fill="${c}"/>
+      ${tx(0, -94, p.label, {size: 15, f: MONO, c: C.muted})}`;
+  },
+  lock: p => `<path d="M-16 -6 V-22 a16 16 0 0 1 32 0 V-6" stroke="${C.coral}" stroke-width="7" fill="none"/><rect x="-26" y="-8" width="52" height="40" rx="8" fill="${C.coral}"/><circle cx="0" cy="10" r="6" fill="${C.navy}"/>`,
+  doc: p => {
+    const w = p.w || 170, h = p.h || 200;
+    let s = `<path d="M${-w / 2} ${-h / 2} H${w / 2 - 24} L${w / 2} ${-h / 2 + 24} V${h / 2} H${-w / 2} Z" fill="${C.white}" stroke="${C.grid}" stroke-width="2"/>
+      <path d="M${w / 2 - 24} ${-h / 2} V${-h / 2 + 24} H${w / 2}" fill="${C.muted}"/>
+      ${tx(-w / 2 + 14, -h / 2 + 30, p.title, {size: 16, w: 700, c: C.navy, a: 'start'})}`;
+    (p.lines || []).forEach((l, i) => {
+      const k = typeof l === 'object' && l.k ? l.k : null;
+      const txt = k ? l.t : l;
+      s += tx(-w / 2 + 14, -h / 2 + 60 + i * 26, txt, {size: 14, c: k === 'warn' ? '#9A6B12' : C.deep, a: 'start', f: MONO, w: 500});
+      if (k === 'warn') s += `<circle cx="${w / 2 - 18}" cy="${-h / 2 + 55 + i * 26}" r="9" fill="${C.gold}"/><text x="${w / 2 - 18}" y="${-h / 2 + 60 + i * 26}" font-family="${HEAD}" font-size="13" fill="${C.navy}" text-anchor="middle">!</text>`;
+    });
+    return s;
+  },
+  bubble: p => {
+    const w = p.w || 220, h = p.h || 64, c = K[p.k] || C.white;
+    const tail = p.tail === 'right' ? `M${w / 2 - 40} ${h / 2} l18 22 l4 -22` : `M${-w / 2 + 30} ${h / 2} l-6 22 l24 -22`;
+    return `<path d="${tail}" fill="${C.deep}" stroke="${c}" stroke-width="3"/><rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="18" fill="${C.deep}" stroke="${c}" stroke-width="3"/>
+      <rect x="${p.tail === 'right' ? w / 2 - 38 : -w / 2 + 31}" y="${h / 2 - 4}" width="20" height="6" fill="${C.deep}"/>
+      ${tx(0, p.sub ? -4 : 7, p.text, {size: p.size || 19, w: 700, f: p.mono ? MONO : SANS})}${p.sub ? tx(0, 20, p.sub, {size: 14, c: C.muted}) : ''}`;
+  },
+  pill: p => {
+    const w = p.w || 180, c = K[p.k] || C.grid;
+    const sym = p.k === 'ok' ? '✓' : p.k === 'no' ? '✗' : p.k === 'warn' ? '!' : '';
+    return `<rect x="${-w / 2}" y="-20" width="${w}" height="40" rx="20" fill="${C.deep}" stroke="${c}" stroke-width="3"/>
+      <text x="0" y="6" font-family="${p.mono === false ? SANS : MONO}" font-size="${p.size || 16}" text-anchor="middle" font-weight="700"><tspan fill="${c}">${sym}</tspan><tspan fill="${C.white}">${sym ? ' ' : ''}${esc(p.text)}</tspan></text>`;
+  },
+  server: p => `<rect x="-50" y="-66" width="100" height="40" rx="8" fill="${C.panel}" stroke="${C.grid}" stroke-width="3"/><rect x="-50" y="-20" width="100" height="40" rx="8" fill="${C.panel}" stroke="${C.grid}" stroke-width="3"/><rect x="-50" y="26" width="100" height="40" rx="8" fill="${C.panel}" stroke="${C.grid}" stroke-width="3"/>
+    <circle cx="-30" cy="-46" r="5" fill="${C.mint}"/><circle cx="-30" cy="0" r="5" fill="${C.mint}"/><circle cx="-30" cy="46" r="5" fill="${C.mint}"/>${tx(0, 96, p.label, {size: 17, w: 700})}`,
+  cart: p => `<path d="M-50 -30 H-36 L-24 22 H34 L46 -16 H-30" stroke="${C.white}" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/><circle cx="-16" cy="38" r="8" fill="${C.white}"/><circle cx="26" cy="38" r="8" fill="${C.white}"/>
+    ${p.n ? `<circle cx="44" cy="-34" r="17" fill="${C.mint}"/>${tx(44, -28, p.n, {size: 18, w: 700, c: C.navy})}` : ''}`,
+  house: p => {
+    const c = K[p.k] || C.mint;
+    return `<path d="M-70 -10 L0 -70 L70 -10" stroke="${c}" stroke-width="6" fill="none" stroke-linejoin="round"/><rect x="-56" y="-14" width="112" height="84" rx="6" fill="${C.deep}" stroke="${c}" stroke-width="4"/>
+      <rect x="-14" y="22" width="28" height="48" rx="4" fill="${c}"/>${tx(0, 100, p.label, {size: 17, w: 700})}`;
+  },
+  card: p => `<rect x="${-(p.w || 120) / 2}" y="-80" width="${p.w || 120}" height="160" rx="10" fill="${C.panel}" stroke="${K[p.k] || C.grid}" stroke-width="3"/><rect x="-46" y="-66" width="92" height="74" rx="6" fill="${C.grid}"/>
+    <path d="M-12 -44 L14 -29 L-12 -14 Z" fill="${C.muted}"/>${tx(0, 34, p.title, {size: 15, w: 700})}${tx(0, 58, p.sub, {size: 13, c: C.gold, f: MONO})}`,
+  text: p => tx(0, 0, p.text, {size: p.size || 20, w: p.w || 700, c: K[p.k] || p.c || C.white, f: p.mono ? MONO : (p.head ? HEAD : SANS), a: p.a}),
+  arrow: p => {
+    const k = clamp((t - p._abs) / 0.4), x2 = p.dx * k, y2 = p.dy * k, c = K[p.k] || C.mint;
+    const a = Math.atan2(p.dy, p.dx), hs = 12;
+    const head = k > .2 ? `<path d="M${x2} ${y2} L${x2 - hs * Math.cos(a - .5)} ${y2 - hs * Math.sin(a - .5)} L${x2 - hs * Math.cos(a + .5)} ${y2 - hs * Math.sin(a + .5)} Z" fill="${c}"/>` : '';
+    return `<line x1="0" y1="0" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="5" stroke-linecap="round" ${p.dash ? 'stroke-dasharray="10 9"' : ''}/>${head}`;
+  },
+};
+const beats = S.beats;
+let bi = beats.findIndex(b => t >= b.t0 && t < b.t1);
+if (bi < 0) bi = beats.length - 1;
+const B = beats[bi];
+const lt = t - B.t0;
+const bf = Math.min(clamp(lt / 0.3), clamp((B.t1 - t) / 0.3));
+let g = '';
+(B.items || []).forEach(it => {
+  const at = it.at || 0;
+  if (lt < at) return;
+  const k = clamp((lt - at) / 0.35);
+  let x = it.x, y = it.y;
+  if (it.to) {
+    const mk = ease(clamp((lt - (it.to[2] || at + .4)) / (it.to[3] || .8)));
+    x += (it.to[0] - it.x) * mk; y += (it.to[1] - it.y) * mk;
+  }
+  const sc = (it.s || 1) * (it.arrow || it.sp === 'arrow' ? 1 : back(k));
+  it._abs = B.t0 + at;
+  const op = (it.sp === 'arrow' ? 1 : clamp(k * 2)) * (it.out ? clamp((it.out + 0.3 - lt) / 0.3) : 1);
+  g += `<g transform="translate(${x} ${y}) scale(${sc})" opacity="${op * (it.o || 1)}">${SP[it.sp](it)}</g>`;
+});
+let dots = '';
+beats.forEach((b, i) => { dots += `<circle cx="${480 - (beats.length - 1) * 13 + i * 26}" cy="510" r="${i === bi ? 7 : 5}" fill="${i <= bi ? C.mint : C.grid}"/>`; });
+const head = lang === 'es' ? 'EXPLICADO PARA UN NIÑO DE 8 AÑOS' : "EXPLAINED LIKE YOU'RE 8";
+document.getElementById('v').innerHTML = `
+<defs><pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="${C.mint}" stroke-opacity=".06"/></pattern></defs>
+<rect width="960" height="540" fill="${C.navy}"/><rect width="960" height="540" fill="url(#g)"/><rect width="8" height="540" fill="${C.mint}"/>
+<g opacity="${clamp(Math.min(t / .3, (S.duration - t) / .4))}">
+<text x="36" y="34" font-family="${MONO}" font-size="12" letter-spacing="2.5" fill="${C.muted2}">${esc(S.repo)} · ${head}</text>
+<text x="924" y="34" font-family="${MONO}" font-size="12" fill="${C.muted2}" text-anchor="end">${bi + 1}/${beats.length}</text>
+<g opacity="${bf}">
+<text x="480" y="86" font-family="${HEAD}" font-size="30" fill="${C.white}" text-anchor="middle">${esc(B.cap)}</text>
+${g}
+</g>
+${dots}
+<text x="924" y="516" font-family="${MONO}" font-size="12" fill="${C.mint}" text-anchor="end">Cristian Guerra · QA · Medellín</text>
+</g>`;
+</script>
+</body>
+</html>
